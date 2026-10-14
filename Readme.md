@@ -1,0 +1,1 @@
+for now i am creating and pushing this login page it still need an actual backend to run and store things its still stlae whoever is working on backend can js inspect and check the arguments which has been used so it would remain consistent across the codebase thats all for today 
