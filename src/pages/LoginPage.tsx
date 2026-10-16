@@ -1,6 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 
 export default function LoginPage() {
+  const [doorOpen, setDoorOpen] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,114 +28,151 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="login-page">
-      <div className="login-shell">
-        <a className="brand" href="/" aria-label="ProxiSpeak home">
-          <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" fill="none">
-              <path
-                d="M8 23.5V8.5h8.4a5.1 5.1 0 0 1 0 10.2H8"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <circle cx="23.5" cy="22.5" r="2.5" fill="currentColor" />
-            </svg>
-          </span>
-          <span>ProxiSpeak</span>
-        </a>
+    <main className={`login-page${doorOpen ? " door-open" : ""}`}>
+      <a className="brand" href="/" aria-label="ProxiSpeak home">
+        <span className="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path
+              d="M8 23.5V8.5h8.4a5.1 5.1 0 0 1 0 10.2H8"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <circle cx="23.5" cy="22.5" r="2.5" fill="currentColor" />
+          </svg>
+        </span>
+        <span>ProxiSpeak</span>
+      </a>
 
-        <section className="login-card" aria-labelledby="login-title">
-          <div className="login-heading">
-            <p className="eyebrow">YOUR WORKSPACE</p>
-            <h1 id="login-title">Welcome back<span>.</span></h1>
-            <p className="subtitle">
-              Sign in to pick up where you left off.
+      <section className="login-main" aria-labelledby="login-title">
+        <div className="entry-stage">
+          <div className="login-card">
+            <div className="login-heading">
+              <p className="eyebrow">YOUR WORKSPACE</p>
+              <h1 id="login-title">
+                Welcome back<span>.</span>
+              </h1>
+              <p className="subtitle">
+                Sign in to pick up where you left off.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="field-group">
+                <label htmlFor="email">Email address</label>
+                <input
+                  id="email"
+                  ref={emailInputRef}
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="field-group">
+                <div className="password-label">
+                  <label htmlFor="password">Password</label>
+                  <button
+                    className="text-button"
+                    type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+              </div>
+
+              {message && (
+                <p className="form-message" role="status">
+                  {message}
+                </p>
+              )}
+
+              <button className="primary-button" type="submit">
+                Sign in <span aria-hidden="true">→</span>
+              </button>
+            </form>
+
+            <div className="separator">
+              <span>OR</span>
+            </div>
+
+            <button
+              className="guest-button"
+              type="button"
+              onClick={() =>
+                setMessage(
+                  "Guest entry will be connected when rooms are implemented."
+                )
+              }
+            >
+              Continue as a guest <span aria-hidden="true">→</span>
+            </button>
+
+            <p className="signup-text">
+              New around here?{" "}
+              <button
+                className="text-button"
+                type="button"
+                onClick={() =>
+                  setMessage("Account creation will be added in a future step.")
+                }
+              >
+                Create an account
+              </button>
             </p>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="field-group">
-              <label htmlFor="email">Email address</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                required
-              />
-            </div>
-
-            <div className="field-group">
-              <div className="password-label">
-                <label htmlFor="password">Password</label>
-                <button
-                  className="text-button"
-                  type="button"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
-              </div>
-              <input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-            </div>
-
-            {message && (
-              <p className="form-message" role="status">
-                {message}
-              </p>
-            )}
-
-            <button className="primary-button" type="submit">
-              Sign in <span aria-hidden="true">→</span>
-            </button>
-          </form>
-
-          <div className="separator">
-            <span>OR</span>
-          </div>
-
-          <button
-            className="guest-button"
-            type="button"
-            onClick={() =>
-              setMessage(
-                "Guest entry will be connected when rooms are implemented."
-              )
-            }
-          >
-            Continue as a guest <span aria-hidden="true">→</span>
-          </button>
-
-          <p className="signup-text">
-            New around here?{" "}
+          <div className="doorway" aria-hidden={doorOpen}>
+            <span className="door-contact-shadow" aria-hidden="true" />
+            <span className="door-threshold" aria-hidden="true" />
             <button
-              className="text-button"
+              className="office-door"
               type="button"
-              onClick={() =>
-                setMessage("Account creation will be added in a future step.")
-              }
+              aria-label="Open the office door to sign in"
+              aria-expanded={doorOpen}
+              disabled={doorOpen}
+              onClick={() => setDoorOpen(true)}
+              onTransitionEnd={(event) => {
+                if (event.propertyName === "transform") {
+                  emailInputRef.current?.focus();
+                }
+              }}
             >
-              Create an account
+              <span className="door-back" aria-hidden="true">
+                <span className="door-back-panel" />
+              </span>
+              <span className="door-glass" aria-hidden="true">
+                <span className="glass-reflection" />
+              </span>
+              <span className="door-plaque">PROXISPEAK</span>
+              <span className="door-panel door-panel-top" />
+              <span className="door-panel door-panel-bottom" />
+              <span className="door-handle" />
             </button>
-          </p>
-        </section>
+          </div>
+        </div>
+      </section>
 
-        <p className="page-footer">A shared space for better conversations.</p>
-      </div>
+      <p className="entry-caption" aria-hidden={doorOpen}>
+        A quieter place for better conversations.
+        <span>Click the door to enter</span>
+      </p>
     </main>
   );
 }
