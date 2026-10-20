@@ -1,6 +1,9 @@
 import { useRef, useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import BrandLogo from "../components/BrandLogo";
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [doorOpen, setDoorOpen] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState("");
@@ -30,19 +33,7 @@ export default function LoginPage() {
   return (
     <main className={`login-page${doorOpen ? " door-open" : ""}`}>
       <a className="brand" href="/" aria-label="ProxiSpeak home">
-        <span className="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none">
-            <path
-              d="M8 23.5V8.5h8.4a5.1 5.1 0 0 1 0 10.2H8"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <circle cx="23.5" cy="22.5" r="2.5" fill="currentColor" />
-          </svg>
-        </span>
-        <span>ProxiSpeak</span>
+        <BrandLogo />
       </a>
 
       <section className="login-main" aria-labelledby="login-title">
@@ -115,11 +106,7 @@ export default function LoginPage() {
             <button
               className="guest-button"
               type="button"
-              onClick={() =>
-                setMessage(
-                  "Guest entry will be connected when rooms are implemented."
-                )
-              }
+              onClick={() => navigate("/rooms")}
             >
               Continue as a guest <span aria-hidden="true">→</span>
             </button>
