@@ -34,6 +34,8 @@ export default function Workspace({ initialName = "" }) {
 
   useEffect(() => {
     function handleParticipants(ids) {
+      if (!Array.isArray(ids)) return;
+
       setRemoteIds(ids);
 
       const activeIds = new Set(ids);
@@ -52,6 +54,8 @@ export default function Workspace({ initialName = "" }) {
     }
 
     function handleParticipantJoined(id) {
+      if (typeof id !== "string" || !id) return;
+
       setRemoteIds((previous) =>
         previous.includes(id) ? previous : [...previous, id]
       );
@@ -91,6 +95,53 @@ export default function Workspace({ initialName = "" }) {
       }));
     }
 
+    // Receive positions of participants who were already in the room.
+    function handleExistingAvatarPositions(positions = []) {
+      if (!Array.isArray(positions)) return;
+
+      setRemotePositions((previous) => {
+        const next = { ...previous };
+
+        positions.forEach(({ participantId, position } = {}) => {
+          if (
+            participantId &&
+            position &&
+            Number.isFinite(position.x) &&
+            Number.isFinite(position.y)
+          ) {
+            next[participantId] = position;
+          }
+        });
+
+        return next;
+      });
+
+      setRemoteNames((previous) => {
+        const next = { ...previous };
+
+        positions.forEach(({ participantId, displayName } = {}) => {
+          if (participantId) {
+            next[participantId] =
+              typeof displayName === "string" && displayName.trim()
+                ? displayName.trim().slice(0, 30)
+                : next[participantId] || "Teammate";
+          }
+        });
+
+        return next;
+      });
+
+      setRemoteIds((previous) => {
+        const next = new Set(previous);
+
+        positions.forEach(({ participantId } = {}) => {
+          if (participantId) next.add(participantId);
+        });
+
+        return [...next];
+      });
+    }
+
     function handleParticipantLeft(id) {
       setRemoteIds((previous) =>
         previous.filter((participantId) => participantId !== id)
@@ -112,12 +163,20 @@ export default function Workspace({ initialName = "" }) {
     audioSocket.on("audio-room-participants", handleParticipants);
     audioSocket.on("audio-participant-joined", handleParticipantJoined);
     audioSocket.on("avatar-position-update", handlePositionUpdate);
+    audioSocket.on(
+      "existing-avatar-positions",
+      handleExistingAvatarPositions
+    );
     audioSocket.on("audio-participant-left", handleParticipantLeft);
 
     return () => {
       audioSocket.off("audio-room-participants", handleParticipants);
       audioSocket.off("audio-participant-joined", handleParticipantJoined);
       audioSocket.off("avatar-position-update", handlePositionUpdate);
+      audioSocket.off(
+        "existing-avatar-positions",
+        handleExistingAvatarPositions
+      );
       audioSocket.off("audio-participant-left", handleParticipantLeft);
     };
   }, []);
@@ -151,7 +210,7 @@ export default function Workspace({ initialName = "" }) {
       setJoined(true);
       setMessage(`Connected as ${displayName}`);
 
-      // Share your initial avatar position and display name.
+      // Send the initial position after joining the audio room.
       audioSocket.emit("avatar-position-update", {
         roomId: ROOM_ID,
         position,
@@ -161,9 +220,9 @@ export default function Workspace({ initialName = "" }) {
       console.error("Could not join ProxiSpeak:", error);
 
       setMessage(
-        error.name === "NotAllowedError"
+        error?.name === "NotAllowedError"
           ? "Microphone access was denied. Allow microphone access and try again."
-          : `Could not connect: ${error.message}`
+          : `Could not connect: ${error?.message || "Unknown error"}`
       );
     } finally {
       setBusy(false);
@@ -210,7 +269,6 @@ export default function Workspace({ initialName = "" }) {
 
     if (!rect.width || !rect.height) return;
 
-    // Convert browser coordinates to the shared 1000 x 600 workspace.
     const position = {
       x: clamp(((event.clientX - rect.left) / rect.width) * 1000, 0, 1000),
       y: clamp(((event.clientY - rect.top) / rect.height) * 600, 0, 600),

@@ -46,6 +46,9 @@ const io = new Server(httpServer, {
   },
 });
 
+// Store the latest avatar position for each connected participant.
+const participantPositions = new Map();
+
 // Join an audio room
 io.on("connection", (socket) => {
   console.log("Participant connected:", socket.id);
@@ -55,19 +58,52 @@ io.on("connection", (socket) => {
       return;
     }
 
+    // Avoid duplicate room joins.
+    if (socket.rooms.has(roomId)) {
+      return;
+    }
+
     socket.join(roomId);
 
     const participants = [
       ...(io.sockets.adapter.rooms.get(roomId) || []),
     ].filter((id) => id !== socket.id);
 
+    // Send existing participant IDs to the new participant.
     socket.emit("audio-room-participants", participants);
-    socket.to(roomId).emit("audio-participant-joined", socket.id);
+
+    // Send positions already known for participants in this room.
+    const existingPositions = participants
+      .map((participantId) => {
+        const saved = participantPositions.get(participantId);
+
+        if (!saved || saved.roomId !== roomId) {
+          return null;
+        }
+
+        return {
+          participantId,
+          position: saved.position,
+          displayName: saved.displayName,
+        };
+      })
+      .filter(Boolean);
+
+    socket.emit(
+      "existing-avatar-positions",
+      existingPositions
+    );
+
+    // Notify existing participants about the new participant.
+    socket.to(roomId).emit(
+      "audio-participant-joined",
+      socket.id
+    );
 
     console.log(`${socket.id} joined room: ${roomId}`);
   });
 
-  // Synchronize avatar positions
+  // Synchronize and store avatar positions.
   socket.on(
     "avatar-position-update",
     ({ roomId, position, displayName } = {}) => {
@@ -81,23 +117,39 @@ io.on("connection", (socket) => {
         return;
       }
 
-      const x = Math.max(0, Math.min(1000, position.x));
-      const y = Math.max(0, Math.min(600, position.y));
+      // Keep positions within the workspace boundaries.
+      const safePosition = {
+        x: Math.max(0, Math.min(1000, position.x)),
+        y: Math.max(0, Math.min(600, position.y)),
+      };
 
+      const safeDisplayName =
+        typeof displayName === "string" &&
+        displayName.trim()
+          ? displayName.trim().slice(0, 30)
+          : "Teammate";
+
+      // Save the latest position for future participants.
+      participantPositions.set(socket.id, {
+        roomId,
+        position: safePosition,
+        displayName: safeDisplayName,
+      });
+
+      // Broadcast the update to other participants in this room.
       socket.to(roomId).emit("avatar-position-update", {
         participantId: socket.id,
-        displayName:
-          typeof displayName === "string"
-            ? displayName.trim().slice(0, 30)
-            : "Teammate",
-        position: { x, y },
+        displayName: safeDisplayName,
+        position: safePosition,
       });
     }
   );
 
   // WebRTC offer
   socket.on("webrtc-offer", ({ targetId, offer } = {}) => {
-    if (!targetId || !offer) return;
+    if (!targetId || !offer) {
+      return;
+    }
 
     io.to(targetId).emit("webrtc-offer", {
       senderId: socket.id,
@@ -107,7 +159,9 @@ io.on("connection", (socket) => {
 
   // WebRTC answer
   socket.on("webrtc-answer", ({ targetId, answer } = {}) => {
-    if (!targetId || !answer) return;
+    if (!targetId || !answer) {
+      return;
+    }
 
     io.to(targetId).emit("webrtc-answer", {
       senderId: socket.id,
@@ -119,7 +173,9 @@ io.on("connection", (socket) => {
   socket.on(
     "webrtc-ice-candidate",
     ({ targetId, candidate } = {}) => {
-      if (!targetId || !candidate) return;
+      if (!targetId || !candidate) {
+        return;
+      }
 
       io.to(targetId).emit("webrtc-ice-candidate", {
         senderId: socket.id,
@@ -128,21 +184,27 @@ io.on("connection", (socket) => {
     }
   );
 
-  // Notify room participants when someone disconnects
+  // Notify room participants when someone disconnects.
   socket.on("disconnecting", () => {
     for (const roomId of socket.rooms) {
       if (roomId !== socket.id) {
-        socket.to(roomId).emit("audio-participant-left", socket.id);
+        socket.to(roomId).emit(
+          "audio-participant-left",
+          socket.id
+        );
       }
     }
   });
 
+  // Clean up stored positions when the participant disconnects.
   socket.on("disconnect", () => {
+    participantPositions.delete(socket.id);
+
     console.log("Participant disconnected:", socket.id);
   });
 });
 
-// Start server only after MongoDB connects
+// Start server only after MongoDB connects.
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
@@ -159,10 +221,16 @@ async function startServer() {
     console.log("MongoDB connected successfully.");
 
     httpServer.listen(PORT, () => {
-      console.log(`ProxiSpeak server running at http://localhost:${PORT}`);
+      console.log(
+        `ProxiSpeak server running at http://localhost:${PORT}`
+      );
     });
   } catch (error) {
-    console.error("Server startup failed:", error.message);
+    console.error(
+      "Server startup failed:",
+      error.message
+    );
+
     process.exit(1);
   }
 }
