@@ -1,10 +1,4 @@
-/*
- * Room selection + office placeholder: photo panel + form panel.
- * Tokens mirror the Figma file "ProxiSpeak – Rooms screen" (Color variables).
- * Scoped under .rooms-page because index.css loads after component CSS and
- * would otherwise win equal-specificity ties. Reduced motion is handled by the
- * global rule in index.css.
- */
+
 
 .rooms-page {
   --bg-page: #e9e8e1;
@@ -46,7 +40,7 @@
   white-space: nowrap;
 }
 
-/* ---------- Photo panel ---------- */
+
 
 .rooms-page .rooms-photo {
   position: sticky;
@@ -105,7 +99,7 @@
   opacity: 0.85;
 }
 
-/* ---------- Form panel ---------- */
+
 
 .rooms-page .rooms-panel-area {
   display: flex;
@@ -160,7 +154,7 @@
   text-align: center;
 }
 
-/* ---------- Card ---------- */
+
 
 .rooms-page .rooms-card {
   display: flex;
@@ -183,7 +177,7 @@
   background: var(--border);
 }
 
-/* Fields (override the login .field-group sizes to match the design) */
+
 
 .rooms-page .field-group {
   display: flex;
@@ -262,7 +256,7 @@
   font-weight: 600;
 }
 
-/* ---------- Tabs ---------- */
+
 
 .rooms-page .rooms-tabs {
   display: flex;
@@ -295,7 +289,7 @@
   color: var(--ink);
 }
 
-/* ---------- Forms, buttons, created state ---------- */
+
 
 .rooms-page .rooms-form,
 .rooms-page .rooms-created {
@@ -413,7 +407,6 @@
   font-size: 13px;
 }
 
-/* ---------- Responsive ---------- */
 
 @media (max-width: 960px) {
   .rooms-page {
@@ -442,7 +435,7 @@
     line-height: 23px;
   }
 
-  /* The back link sits over the photo on small screens. */
+
   .rooms-page .rooms-header {
     position: absolute;
     z-index: 2;

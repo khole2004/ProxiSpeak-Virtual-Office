@@ -6,7 +6,6 @@ import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import { findRoom } from "../services/demoRooms";
 import { clearRoomSelection, readSession } from "../services/demoSession";
 
-
 export default function OfficePage() {
   useDocumentTitle("Office | ProxiSpeak");
   const navigate = useNavigate();
@@ -18,7 +17,6 @@ export default function OfficePage() {
     };
   });
 
- 
   if (!room || !displayName) return <Navigate to="/rooms" replace />;
 
   function leave() {

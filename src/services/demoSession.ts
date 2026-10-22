@@ -1,10 +1,8 @@
-
 import { isRoomCodeFormat } from "./demoRooms";
 import { readJson, writeJson } from "./safeStorage";
 
 export interface DemoSession {
   displayName: string;
-  /** Canonical code of the selected room, or null before one is chosen. */
   roomCode: string | null;
 }
 

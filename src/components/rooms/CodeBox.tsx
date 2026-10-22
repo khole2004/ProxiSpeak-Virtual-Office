@@ -3,7 +3,7 @@ import { formatRoomCode } from "../../services/demoRooms";
 
 type CopyState = "idle" | "copied" | "failed";
 
-/** The room code in a quiet box with a copy button. */
+
 export default function CodeBox({ code }: { code: string }) {
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const timer = useRef<number | undefined>(undefined);

@@ -1,8 +1,6 @@
-
 export type StorageArea = "local" | "session";
 
 const memory = new Map<string, string>();
-
 const memoryOnly = new Set<string>();
 
 function getArea(area: StorageArea): Storage | null {
@@ -50,7 +48,6 @@ export function writeJson(area: StorageArea, key: string, value: unknown): void 
     storage.setItem(key, text);
     memoryOnly.delete(id);
   } catch {
-    // Quota exceeded or storage blocked: keep working from memory.
     memoryOnly.add(id);
   }
 }

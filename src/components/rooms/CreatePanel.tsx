@@ -4,7 +4,7 @@ import CodeBox from "./CodeBox";
 
 interface CreatePanelProps {
   roomName: string;
-  /** What a blank room name becomes, or null while no display name is set. */
+
   defaultName: string | null;
   error: string | null;
   createdRoom: DemoRoom | null;

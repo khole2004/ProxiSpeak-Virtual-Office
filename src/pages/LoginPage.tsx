@@ -1,165 +1,248 @@
-import { useRef, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import BrandLogo from "../components/BrandLogo";
+import OfficeDoor from "../components/OfficeDoor";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+import "./login.css";
+
+type Phase = "idle" | "opening" | "entering" | "open";
+
+const ENTER_AT = 1000;
+const OPEN_AT = 2150;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginPage() {
+  useDocumentTitle("Sign in | ProxiSpeak");
   const navigate = useNavigate();
-  const [doorOpen, setDoorOpen] = useState(false);
+  const location = useLocation();
+  const skipDoor = Boolean((location.state as { skipDoor?: boolean } | null)?.skipDoor);
+
+  const [phase, setPhase] = useState<Phase>(skipDoor ? "open" : "idle");
+  const timers = useRef<number[]>([]);
+  const layoutRef = useRef<HTMLDivElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage("");
+  useEffect(() => {
+    const layout = layoutRef.current as (HTMLDivElement & { inert: boolean }) | null;
+    if (layout) layout.inert = phase !== "open";
+    if (phase === "open") {
+      const id = window.setTimeout(() => emailInputRef.current?.focus({ preventScroll: true }), 120);
+      return () => window.clearTimeout(id);
+    }
+  }, [phase]);
 
-    if (!email.trim() || !password) {
-      setMessage("Please enter your email and password.");
+  useEffect(() => () => timers.current.forEach((id) => window.clearTimeout(id)), []);
+
+  function openDoor() {
+    if (phase !== "idle") return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      setPhase("open");
       return;
     }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setMessage("Please enter a valid email address.");
-      return;
-    }
-
-    setMessage(
-      "The interface is working! Authentication will be connected later."
+    setPhase("opening");
+    timers.current.push(
+      window.setTimeout(() => setPhase("entering"), ENTER_AT),
+      window.setTimeout(() => setPhase("open"), OPEN_AT)
     );
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setNote(null);
+
+    if (!email.trim()) {
+      setEmailError("Enter your email address.");
+      setPasswordError(null);
+      emailInputRef.current?.focus();
+      return;
+    }
+    if (!EMAIL_PATTERN.test(email.trim())) {
+      setEmailError("Enter a valid email address, like you@example.com.");
+      setPasswordError(null);
+      emailInputRef.current?.focus();
+      return;
+    }
+    setEmailError(null);
+
+    if (!password) {
+      setPasswordError("Enter your password.");
+      passwordInputRef.current?.focus();
+      return;
+    }
+    setPasswordError(null);
+
+    setNote("Sign-in isn’t connected yet. Continue as a guest to look around.");
+  }
+
   return (
-    <main className={`login-page${doorOpen ? " door-open" : ""}`}>
-      <a className="brand" href="/" aria-label="ProxiSpeak home">
-        <BrandLogo />
-      </a>
-
-      <section className="login-main" aria-labelledby="login-title">
-        <div className="entry-stage">
-          <div className="login-card">
-            <div className="login-heading">
-              <p className="eyebrow">YOUR WORKSPACE</p>
-              <h1 id="login-title">
-                Welcome back<span>.</span>
-              </h1>
-              <p className="subtitle">
-                Sign in to pick up where you left off.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <div className="field-group">
-                <label htmlFor="email">Email address</label>
-                <input
-                  id="email"
-                  ref={emailInputRef}
-                  type="email"
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="field-group">
-                <div className="password-label">
-                  <label htmlFor="password">Password</label>
-                  <button
-                    className="text-button"
-                    type="button"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    aria-pressed={showPassword}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
-                </div>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  required
-                />
-              </div>
-
-              {message && (
-                <p className="form-message" role="status">
-                  {message}
-                </p>
-              )}
-
-              <button className="primary-button" type="submit">
-                Sign in <span aria-hidden="true">→</span>
-              </button>
-            </form>
-
-            <div className="separator">
-              <span>OR</span>
-            </div>
-
-            <button
-              className="guest-button"
-              type="button"
-              onClick={() => navigate("/rooms")}
-            >
-              Continue as a guest <span aria-hidden="true">→</span>
-            </button>
-
-            <p className="signup-text">
-              New around here?{" "}
-              <button
-                className="text-button"
-                type="button"
-                onClick={() =>
-                  setMessage("Account creation will be added in a future step.")
-                }
-              >
-                Create an account
-              </button>
-            </p>
-          </div>
-
-          <div className="doorway" aria-hidden={doorOpen}>
-            <span className="door-contact-shadow" aria-hidden="true" />
-            <span className="door-threshold" aria-hidden="true" />
-            <button
-              className="office-door"
-              type="button"
-              aria-label="Open the office door to sign in"
-              aria-expanded={doorOpen}
-              disabled={doorOpen}
-              onClick={() => setDoorOpen(true)}
-              onTransitionEnd={(event) => {
-                if (event.propertyName === "transform") {
-                  emailInputRef.current?.focus();
-                }
-              }}
-            >
-              <span className="door-back" aria-hidden="true">
-                <span className="door-back-panel" />
-              </span>
-              <span className="door-glass" aria-hidden="true">
-                <span className="glass-reflection" />
-              </span>
-              <span className="door-plaque">PROXISPEAK</span>
-              <span className="door-panel door-panel-top" />
-              <span className="door-panel door-panel-bottom" />
-              <span className="door-handle" />
-            </button>
+    <main className="login-page" data-phase={phase}>
+      <div className="login-layout" ref={layoutRef}>
+        <div className="login-photo">
+          <a className="login-brand" href="/" aria-label="ProxiSpeak home">
+            <BrandLogo tone="dark" />
+          </a>
+          <div className="login-intro">
+            <h1 id="login-title">Welcome back.</h1>
+            <p className="login-lede">Sign in to rejoin your office and the people already in it.</p>
           </div>
         </div>
-      </section>
 
-      <p className="entry-caption" aria-hidden={doorOpen}>
-        A quieter place for better conversations.
-        <span>Click the door to enter</span>
-      </p>
+        <div className="login-panel-area">
+          <header className="login-header">
+            <span>New here?</span>
+            <button
+              className="login-link-button"
+              type="button"
+              onClick={() => setNote("Account creation isn’t available yet. Continue as a guest for now.")}
+            >
+              Create an account
+            </button>
+          </header>
+
+          <div className="login-body">
+            <div className="login-stack">
+              <section className="login-card" aria-label="Sign in">
+                <form onSubmit={handleSubmit} noValidate>
+                  <div className="login-field">
+                    <label htmlFor="email">Email address</label>
+                    <input
+                      id="email"
+                      ref={emailInputRef}
+                      type="email"
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      value={email}
+                      onChange={(event) => {
+                        setEmail(event.target.value);
+                        if (emailError) setEmailError(null);
+                      }}
+                      aria-invalid={emailError ? true : undefined}
+                      aria-describedby={emailError ? "email-error" : undefined}
+                    />
+                    {emailError && (
+                      <p id="email-error" className="login-error" role="alert">
+                        {emailError}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="login-field">
+                    <label htmlFor="password">Password</label>
+                    <div className="login-input-wrap">
+                      <input
+                        id="password"
+                        ref={passwordInputRef}
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={(event) => {
+                          setPassword(event.target.value);
+                          if (passwordError) setPasswordError(null);
+                        }}
+                        aria-invalid={passwordError ? true : undefined}
+                        aria-describedby={passwordError ? "password-error" : undefined}
+                      />
+                      <button
+                        className="login-reveal"
+                        type="button"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                        onClick={() => setShowPassword((value) => !value)}
+                      >
+                        {showPassword ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                    {passwordError && (
+                      <p id="password-error" className="login-error" role="alert">
+                        {passwordError}
+                      </p>
+                    )}
+                  </div>
+
+                  {note && (
+                    <p className="login-note" role="status">
+                      {note}
+                    </p>
+                  )}
+
+                  <button className="login-button login-button--primary" type="submit">
+                    Sign in
+                  </button>
+                </form>
+
+                <div className="login-or" aria-hidden="true">
+                  <span>or</span>
+                </div>
+
+                <button className="login-button login-button--secondary" type="button" onClick={() => navigate("/rooms")}>
+                  Continue as a guest
+                </button>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="entry-scene" aria-hidden={phase === "open" ? true : undefined}>
+        <a className="entry-brand" href="/" tabIndex={phase === "idle" ? 0 : -1} aria-label="ProxiSpeak home">
+          <BrandLogo tone="dark" />
+        </a>
+
+        <div className="camera">
+          <div className="wall" />
+          <div className="wall-glow lit" />
+          <div className="baseboard" />
+          <div className="floor" />
+          <div className="spill lit" />
+          <span className="sconce sconce--left lit" />
+          <span className="sconce sconce--right lit" />
+
+          <div className="doorway">
+            <div className="casing">
+              <div className="opening">
+                <div className="interior">
+                  <div className="interior-photo" />
+                  <div className="interior-glow" />
+                </div>
+
+                <button
+                  className="door"
+                  type="button"
+                  aria-label="Open the office door to sign in"
+                  aria-expanded={phase !== "idle"}
+                  disabled={phase !== "idle"}
+                  onClick={openDoor}
+                >
+                  <OfficeDoor />
+                  <span className="door-shade" />
+                  <span className="door-sheen" />
+                </button>
+
+                <span className="jamb-shade" />
+              </div>
+            </div>
+            <span className="threshold" />
+          </div>
+        </div>
+
+        <div className="bloom" />
+
+        <p className="entry-hint">
+          <span>A quieter place for better conversations.</span>
+          <strong>Open the door to sign in</strong>
+        </p>
+      </div>
     </main>
   );
 }

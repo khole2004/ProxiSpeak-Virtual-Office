@@ -39,7 +39,6 @@ export default function RoomsPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const pendingFocus = useRef<string | null>(null);
 
-  
   useEffect(() => {
     if (pendingFocus.current) {
       document.getElementById(pendingFocus.current)?.focus();
@@ -49,7 +48,6 @@ export default function RoomsPage() {
 
   const joinMatch = isRoomCodeFormat(normalizeRoomCode(joinCode)) ? findRoom(joinCode) : null;
 
- 
   function requireName(): string | null {
     const result = validateDisplayName(displayName);
     if (!result.valid) {
@@ -82,7 +80,7 @@ export default function RoomsPage() {
 
   function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (createdRoom) return; // never create twice from one confirmation
+    if (createdRoom) return;
     const name = requireName();
     if (!name) return;
 
@@ -134,7 +132,7 @@ export default function RoomsPage() {
         </>
       }
       headerAction={
-        <Link className="rooms-link" to="/">
+        <Link className="rooms-link" to="/" state={{ skipDoor: true }}>
           Back to sign in
         </Link>
       }
