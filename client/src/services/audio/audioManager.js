@@ -390,3 +390,18 @@ export function stopAudio() {
     audioSocket.disconnect();
   }
 }
+// Toggle microphone mute state
+export function toggleLocalMute() {
+  if (!localStream) return false;
+  const audioTrack = localStream.getAudioTracks()[0];
+  if (audioTrack) {
+    audioTrack.enabled = !audioTrack.enabled;
+    return !audioTrack.enabled; // true = muted, false = unmuted
+  }
+  return false;
+}
+
+// Get the active local microphone stream
+export function getLocalAudioStream() {
+  return localStream;
+}

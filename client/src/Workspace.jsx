@@ -1,12 +1,14 @@
-﻿
-import { useCallback, useEffect, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 import "./style.css";
 
 import { audioSocket } from "./services/audio/audioSocket";
+import { SpeechDetector } from "./services/audio/speechDetector";
 import {
   startAudio,
   stopAudio,
   updateAudioPositions,
+  toggleLocalMute,
+  getLocalAudioStream,
 } from "./services/audio/audioManager";
 
 const ROOM_ID = "proxispeak-main-room";
@@ -26,6 +28,12 @@ export default function Workspace({ initialName = "" }) {
   const [remoteIds, setRemoteIds] = useState([]);
   const [remotePositions, setRemotePositions] = useState({});
   const [remoteNames, setRemoteNames] = useState({});
+
+  // Member D: Speaking and Mute states
+  const [isMuted, setIsMuted] = useState(false);
+  const [isLocalSpeaking, setIsLocalSpeaking] = useState(false);
+  const [speakingPeers, setSpeakingPeers] = useState({});
+  const [mutedPeers, setMutedPeers] = useState({});
 
   const officeRef = useRef(null);
   const draggingRef = useRef(false);
@@ -158,26 +166,58 @@ export default function Workspace({ initialName = "" }) {
         delete next[id];
         return next;
       });
+
+      // Member D: Clean up speaking and mute state for disconnected user
+      setSpeakingPeers((previous) => {
+        const next = { ...previous };
+        delete next[id];
+        return next;
+      });
+
+      setMutedPeers((previous) => {
+        const next = { ...previous };
+        delete next[id];
+        return next;
+      });
+    }
+
+    // Member D: Listen to remote peer speaking event
+    function handleUserSpeaking({ participantId, isSpeaking } = {}) {
+      if (!participantId) return;
+      setSpeakingPeers((previous) => ({
+        ...previous,
+        [participantId]: isSpeaking,
+      }));
+    }
+
+    // Member D: Listen to remote peer mute status event
+    function handleUserMuteStatus({ participantId, isMuted } = {}) {
+      if (!participantId) return;
+      setMutedPeers((previous) => ({
+        ...previous,
+        [participantId]: isMuted,
+      }));
     }
 
     audioSocket.on("audio-room-participants", handleParticipants);
     audioSocket.on("audio-participant-joined", handleParticipantJoined);
     audioSocket.on("avatar-position-update", handlePositionUpdate);
-    audioSocket.on(
-      "existing-avatar-positions",
-      handleExistingAvatarPositions
-    );
+    audioSocket.on("existing-avatar-positions", handleExistingAvatarPositions);
     audioSocket.on("audio-participant-left", handleParticipantLeft);
+
+    // Member D listeners
+    audioSocket.on("user-speaking", handleUserSpeaking);
+    audioSocket.on("user-mute-status", handleUserMuteStatus);
 
     return () => {
       audioSocket.off("audio-room-participants", handleParticipants);
       audioSocket.off("audio-participant-joined", handleParticipantJoined);
       audioSocket.off("avatar-position-update", handlePositionUpdate);
-      audioSocket.off(
-        "existing-avatar-positions",
-        handleExistingAvatarPositions
-      );
+      audioSocket.off("existing-avatar-positions", handleExistingAvatarPositions);
       audioSocket.off("audio-participant-left", handleParticipantLeft);
+
+      audioSocket.off("user-speaking", handleUserSpeaking);
+      audioSocket.off("user-mute-status", handleUserMuteStatus);
     };
   }, []);
 
@@ -188,6 +228,38 @@ export default function Workspace({ initialName = "" }) {
       updateAudioPositions(localPosition, remotePositions);
     }
   }, [localPosition, remotePositions, joined]);
+
+  // Member D: Detect local user speaking and broadcast to room
+  useEffect(() => {
+    if (!joined) return;
+
+    const stream = getLocalAudioStream();
+    if (!stream) return;
+
+    const detector = new SpeechDetector(stream, (speaking) => {
+      setIsLocalSpeaking(speaking);
+      audioSocket.emit("speaking", {
+        roomId: ROOM_ID,
+        isSpeaking: speaking,
+      });
+    });
+
+    return () => {
+      detector.stop();
+      setIsLocalSpeaking(false);
+    };
+  }, [joined]);
+
+  // Member D: Mute / Unmute handler
+  function handleToggleMute() {
+    const nextMuted = toggleLocalMute();
+    setIsMuted(nextMuted);
+
+    audioSocket.emit("toggle-mute", {
+      roomId: ROOM_ID,
+      isMuted: nextMuted,
+    });
+  }
 
   async function joinRoom(event) {
     event.preventDefault();
@@ -237,6 +309,10 @@ export default function Workspace({ initialName = "" }) {
     setRemoteIds([]);
     setRemotePositions({});
     setRemoteNames({});
+    setSpeakingPeers({});
+    setMutedPeers({});
+    setIsLocalSpeaking(false);
+    setIsMuted(false);
     setLocalPosition(INITIAL_POSITION);
 
     localPositionRef.current = INITIAL_POSITION;
@@ -352,13 +428,33 @@ export default function Workspace({ initialName = "" }) {
                 Microphone connected. Drag your avatar around the office.
               </p>
 
-              <button
-                className="leave-button"
-                type="button"
-                onClick={leaveRoom}
-              >
-                Leave workspace
-              </button>
+              <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
+                {/* Member D: Mute / Unmute Button */}
+                <button
+                  type="button"
+                  onClick={handleToggleMute}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: "6px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    border: "none",
+                    background: isMuted ? "#ef4444" : "#22c55e",
+                    color: "#ffffff",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {isMuted ? "🔇 Unmute Mic" : "🎙️ Mute Mic"}
+                </button>
+
+                <button
+                  className="leave-button"
+                  type="button"
+                  onClick={leaveRoom}
+                >
+                  Leave workspace
+                </button>
+              </div>
             </div>
           )}
 
@@ -407,6 +503,7 @@ export default function Workspace({ initialName = "" }) {
             <div className="plant plant-one">✳</div>
             <div className="plant plant-two">✳</div>
 
+            {/* Remote Participants Avatars */}
             {joined &&
               remoteIds.map((id, index) => {
                 const position = remotePositions[id] || {
@@ -416,6 +513,8 @@ export default function Workspace({ initialName = "" }) {
 
                 const remoteName =
                   remoteNames[id] || `Teammate ${index + 1}`;
+                const isPeerSpeaking = Boolean(speakingPeers[id]);
+                const isPeerMuted = Boolean(mutedPeers[id]);
 
                 return (
                   <div
@@ -424,14 +523,22 @@ export default function Workspace({ initialName = "" }) {
                     style={positionStyle(position)}
                     title={remoteName}
                   >
-                    <div className="avatar-head avatar-purple">
+                    {/* Member D: Speaking Pulse class */}
+                    <div
+                      className={`avatar-head avatar-purple ${
+                        isPeerSpeaking ? "speaking-pulse" : ""
+                      }`}
+                    >
                       {remoteName.charAt(0).toUpperCase()}
                     </div>
-                    <span>{remoteName}</span>
+                    <span>
+                      {remoteName} {isPeerMuted ? "🔇" : ""}
+                    </span>
                   </div>
                 );
               })}
 
+            {/* Local User Avatar */}
             {joined && (
               <div
                 className="avatar workspace-avatar local-avatar"
@@ -439,10 +546,17 @@ export default function Workspace({ initialName = "" }) {
                 onPointerDown={startDragging}
                 title={`Drag ${nameRef.current}'s avatar`}
               >
-                <div className="avatar-head avatar-orange">
+                {/* Member D: Speaking Pulse class for local avatar */}
+                <div
+                  className={`avatar-head avatar-orange ${
+                    isLocalSpeaking ? "speaking-pulse" : ""
+                  }`}
+                >
                   {nameRef.current.charAt(0).toUpperCase()}
                 </div>
-                <span>You ({nameRef.current})</span>
+                <span>
+                  You ({nameRef.current}) {isMuted ? "🔇" : ""}
+                </span>
               </div>
             )}
 

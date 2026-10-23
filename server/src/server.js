@@ -1,4 +1,3 @@
-
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -183,6 +182,22 @@ io.on("connection", (socket) => {
       });
     }
   );
+
+  // --- [Member D Added]: Speaking Animation Event ---
+  socket.on("speaking", ({ roomId, isSpeaking }) => {
+    socket.to(roomId).emit("user-speaking", {
+      participantId: socket.id,
+      isSpeaking,
+    });
+  });
+
+  // --- [Member D Added]: Mute Status Event ---
+  socket.on("toggle-mute", ({ roomId, isMuted }) => {
+    socket.to(roomId).emit("user-mute-status", {
+      participantId: socket.id,
+      isMuted,
+    });
+  });
 
   // Notify room participants when someone disconnects.
   socket.on("disconnecting", () => {
