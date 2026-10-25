@@ -1,8 +1,15 @@
+/**
+ * The visitor's current choices: display name and selected room.
+ *
+ * Kept in sessionStorage so it survives a refresh of this tab but not a new
+ * visit. Frontend-only: there is no real identity behind it.
+ */
 import { isRoomCodeFormat } from "./demoRooms";
 import { readJson, writeJson } from "./safeStorage";
 
 export interface DemoSession {
   displayName: string;
+  /** Canonical code of the selected room, or null before one is chosen. */
   roomCode: string | null;
 }
 

@@ -4,6 +4,7 @@ import { ROOM_CODE_LENGTH, type DemoRoom } from "../../services/demoRooms";
 interface JoinPanelProps {
   code: string;
   error: string | null;
+  /** The known room that the current code points to, if any. */
   match: DemoRoom | null;
   onCodeChange: (value: string) => void;
   onUseSample: () => void;

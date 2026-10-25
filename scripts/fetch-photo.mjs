@@ -1,3 +1,12 @@
+// Downloads the rooms-screen photograph to public/studio.png (once).
+// Runs automatically before `npm run dev`. It never fails the dev server:
+// without the photo the left panel simply shows solid evergreen.
+//
+// The source link was generated in Figma and expires 7 days after creation
+// (around 27 Oct 2026). After you have the file once, you keep it forever.
+// If the link has expired, export the image yourself from the Figma frame
+// https://www.figma.com/design/mIIVrBdT8FRSGDiO9Goxqy?node-id=6-43
+// and save it as public/studio.png.
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";

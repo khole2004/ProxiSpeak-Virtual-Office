@@ -5,10 +5,17 @@ import OfficeDoor from "../components/OfficeDoor";
 import { useDocumentTitle } from "../hooks/useDocumentTitle";
 import "./login.css";
 
+/**
+ * idle     door closed, waiting for a click
+ * opening  door swings in, light spills out
+ * entering camera pushes through the doorway
+ * open     sign-in form is live
+ */
 type Phase = "idle" | "opening" | "entering" | "open";
 
+/** Milliseconds from the click to each phase. Keep in step with login.css. */
 const ENTER_AT = 1000;
-const OPEN_AT = 2150;
+const OPEN_AT = 1800;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -20,6 +27,7 @@ export default function LoginPage() {
 
   const [phase, setPhase] = useState<Phase>(skipDoor ? "open" : "idle");
   const timers = useRef<number[]>([]);
+  const pageRef = useRef<HTMLElement>(null);
   const layoutRef = useRef<HTMLDivElement>(null);
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
@@ -31,6 +39,7 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
 
+  // The form is unreachable (mouse, keyboard, screen reader) until the door has opened.
   useEffect(() => {
     const layout = layoutRef.current as (HTMLDivElement & { inert: boolean }) | null;
     if (layout) layout.inert = phase !== "open";
@@ -39,6 +48,23 @@ export default function LoginPage() {
       return () => window.clearTimeout(id);
     }
   }, [phase]);
+
+  // Wall grain: drawn once as a bitmap. (An SVG noise filter would be re-rendered
+  // by the browser every time the camera scales, which is what made the push stutter.)
+  useEffect(() => {
+    const size = 256;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx || !pageRef.current) return;
+    const image = ctx.createImageData(size, size);
+    for (let i = 0; i < image.data.length; i += 4) {
+      image.data[i] = image.data[i + 1] = image.data[i + 2] = 255;
+      image.data[i + 3] = Math.random() * 120;
+    }
+    ctx.putImageData(image, 0, 0);
+    pageRef.current.style.setProperty("--noise", `url(${canvas.toDataURL()})`);
+  }, []);
 
   useEffect(() => () => timers.current.forEach((id) => window.clearTimeout(id)), []);
 
@@ -81,11 +107,13 @@ export default function LoginPage() {
     }
     setPasswordError(null);
 
+    // TODO(backend): replace with the real sign-in request.
     setNote("Sign-in isn’t connected yet. Continue as a guest to look around.");
   }
 
   return (
-    <main className="login-page" data-phase={phase}>
+    <main className="login-page" data-phase={phase} ref={pageRef}>
+      {/* ---------- Sign-in layout (same split as the rooms screen) ---------- */}
       <div className="login-layout" ref={layoutRef}>
         <div className="login-photo">
           <a className="login-brand" href="/" aria-label="ProxiSpeak home">
@@ -194,6 +222,7 @@ export default function LoginPage() {
         </div>
       </div>
 
+      {/* ---------- Door scene ---------- */}
       <div className="entry-scene" aria-hidden={phase === "open" ? true : undefined}>
         <a className="entry-brand" href="/" tabIndex={phase === "idle" ? 0 : -1} aria-label="ProxiSpeak home">
           <BrandLogo tone="dark" />
@@ -236,7 +265,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="bloom" />
+        <div className="flood" />
 
         <p className="entry-hint">
           <span>A quieter place for better conversations.</span>

@@ -39,6 +39,7 @@ export default function RoomsPage() {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const pendingFocus = useRef<string | null>(null);
 
+  // Moves focus to an element that only exists after the next render.
   useEffect(() => {
     if (pendingFocus.current) {
       document.getElementById(pendingFocus.current)?.focus();
@@ -48,6 +49,7 @@ export default function RoomsPage() {
 
   const joinMatch = isRoomCodeFormat(normalizeRoomCode(joinCode)) ? findRoom(joinCode) : null;
 
+  /** Returns the trimmed display name, or flags the field and returns null. */
   function requireName(): string | null {
     const result = validateDisplayName(displayName);
     if (!result.valid) {
@@ -80,7 +82,7 @@ export default function RoomsPage() {
 
   function handleCreate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (createdRoom) return;
+    if (createdRoom) return; // never create twice from one confirmation
     const name = requireName();
     if (!name) return;
 

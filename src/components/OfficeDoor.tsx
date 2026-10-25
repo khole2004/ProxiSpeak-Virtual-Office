@@ -1,5 +1,25 @@
+/**
+ * The ProxiSpeak office door: a five-panel walnut door with reeded glass and
+ * brass hardware, drawn procedurally so it needs no image files.
+ *
+ * Realism comes from SVG filters rather than flat fills:
+ *  - woodV / woodH: turbulence, warped by a second low-frequency turbulence,
+ *    mapped to a walnut colour ramp (vertical grain on stiles and panels,
+ *    horizontal grain on rails, as on a real framed door).
+ *  - relief: a height map (frame, beads, raised panel) lit by a distant light,
+ *    blended over the wood so the mouldings catch light and cast shade.
+ *  - reed: blurred glass content refracted through vertical turbulence.
+ *
+ * Geometry (viewBox 360 x 800): stiles 52 wide, glazed opening on top,
+ * lock rail in the middle, raised panel below, handle on the right.
+ */
+import { useEffect, useRef } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
-export default function OfficeDoor() {
+const BAKE_W = 720;
+const BAKE_H = 1600;
+
+function DoorArt() {
   return (
     <svg
       className="door-art"
@@ -10,6 +30,7 @@ export default function OfficeDoor() {
       overflow="visible"
     >
       <defs>
+        {/* ---------- Wood ---------- */}
         <filter id="pxs-wood-v" x="0" y="0" width="360" height="800" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feTurbulence type="fractalNoise" baseFrequency="0.0045 0.0016" numOctaves="2" seed="3" result="warp" />
           <feTurbulence type="fractalNoise" baseFrequency="0.16 0.0018" numOctaves="4" seed="11" result="fine" />
@@ -44,6 +65,8 @@ export default function OfficeDoor() {
           </feComponentTransfer>
         </filter>
 
+        {/* Height map -> directional light. Flat areas land on mid-grey so
+            "overlay" leaves them untouched and only the mouldings change. */}
         <filter id="pxs-relief" x="0" y="0" width="360" height="800" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feGaussianBlur in="SourceAlpha" stdDeviation="3.2" result="height" />
           <feDiffuseLighting in="height" surfaceScale="3.6" diffuseConstant="1" lightingColor="#ffffff">
@@ -51,16 +74,19 @@ export default function OfficeDoor() {
           </feDiffuseLighting>
         </filter>
 
+        {/* Soft drop shadow for hardware. */}
         <filter id="pxs-hardware-shadow" x="-40%" y="-40%" width="180%" height="190%">
           <feDropShadow dx="1.5" dy="3" stdDeviation="2.2" floodColor="#0b0603" floodOpacity="0.55" />
         </filter>
 
+        {/* Reeded glass: blur the warm light, then bend it through vertical flutes. */}
         <filter id="pxs-reed" x="66" y="74" width="228" height="258" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
           <feGaussianBlur stdDeviation="9" result="soft" />
           <feTurbulence type="turbulence" baseFrequency="0.088 0" numOctaves="1" seed="2" result="flutes" />
           <feDisplacementMap in="soft" in2="flutes" scale="30" xChannelSelector="R" yChannelSelector="A" />
         </filter>
 
+        {/* ---------- Clips ---------- */}
         <clipPath id="pxs-rails">
           <rect x="52" y="0" width="256" height="60" />
           <rect x="52" y="346" width="256" height="106" />
@@ -70,6 +96,7 @@ export default function OfficeDoor() {
           <rect x="66" y="74" width="228" height="258" rx="2" />
         </clipPath>
 
+        {/* ---------- Gradients ---------- */}
         <linearGradient id="pxs-ambient" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#ffd08a" stopOpacity="0.34" />
           <stop offset="0.3" stopColor="#ffd08a" stopOpacity="0.06" />
@@ -129,20 +156,21 @@ export default function OfficeDoor() {
         </linearGradient>
       </defs>
 
+      {/* ---------- Hinge barrels (on the frame side) ---------- */}
       {[70, 380, 690].map((y) => (
         <g key={y} filter="url(#pxs-hardware-shadow)">
-          <rect x="-3" y={y} width="8" height="46" rx="3" fill="url(#pxs-brass-h)" />
-          <rect x="-3" y={y + 21} width="8" height="1.2" fill="#3b2a12" opacity="0.55" />
+          <rect x="0" y={y} width="7" height="46" rx="3" fill="url(#pxs-brass-h)" />
+          <rect x="0" y={y + 21} width="7" height="1.2" fill="#3b2a12" opacity="0.55" />
         </g>
       ))}
 
-
+      {/* ---------- Wood: vertical grain everywhere, horizontal on the rails ---------- */}
       <rect width="360" height="800" filter="url(#pxs-wood-v)" />
       <g clipPath="url(#pxs-rails)">
         <rect width="360" height="800" filter="url(#pxs-wood-h)" />
       </g>
 
-
+      {/* ---------- Joints between stiles and rails ---------- */}
       <g fill="none" strokeLinecap="square">
         {[
           [0, 60],
@@ -156,30 +184,36 @@ export default function OfficeDoor() {
         ))}
       </g>
 
-
+      {/* ---------- Moulding relief (light and shade) ---------- */}
       <g style={{ mixBlendMode: "overlay" }}>
         <g filter="url(#pxs-relief)">
+          {/* Frame at full height, with the two openings cut out. */}
           <path
             fillRule="evenodd"
             fill="#fff"
             d="M0 0H360V800H0Z M52 60H308V346H52Z M52 452H308V736H52Z"
           />
+          {/* Bead around the glass. */}
           <path fillRule="evenodd" fill="#fff" fillOpacity="0.72" d="M52 60H308V346H52Z M66 74H294V332H66Z" />
+          {/* Raised field of the lower panel. */}
           <rect x="68" y="468" width="224" height="252" rx="1" fill="#fff" fillOpacity="0.58" />
+          {/* Fine ridge inside the raised field. */}
           <rect x="86" y="486" width="188" height="216" rx="1" fill="#fff" fillOpacity="0.2" />
         </g>
       </g>
 
+      {/* ---------- Ambient occlusion in the recessed openings ---------- */}
       <rect x="52" y="452" width="256" height="20" fill="url(#pxs-ao-top)" />
       <rect x="52" y="452" width="20" height="284" fill="url(#pxs-ao-left)" />
       <rect x="52" y="736" width="256" height="1" fill="#0a0402" opacity="0.5" />
 
+      {/* ---------- Reeded glass with two warm shapes behind it ---------- */}
       <g clipPath="url(#pxs-glass)">
-        <g className="lit">
+        <g>
           <rect x="66" y="74" width="228" height="258" fill="url(#pxs-glass-bg)" />
           <g filter="url(#pxs-reed)">
-            <circle className="blob blob-a" cx="150" cy="214" r="66" fill="#fff4d6" style={{ mixBlendMode: "screen" }} />
-            <circle className="blob blob-b" cx="212" cy="226" r="66" fill="#ffc977" style={{ mixBlendMode: "screen" }} />
+            <circle cx="150" cy="214" r="66" fill="#fff4d6" style={{ mixBlendMode: "screen" }} />
+            <circle cx="212" cy="226" r="66" fill="#ffc977" style={{ mixBlendMode: "screen" }} />
           </g>
         </g>
         <rect x="66" y="74" width="228" height="258" fill="url(#pxs-flutes)" />
@@ -189,42 +223,19 @@ export default function OfficeDoor() {
       <rect x="66.5" y="74.5" width="227" height="257" rx="2" fill="none" stroke="#0e0603" strokeOpacity="0.75" />
       <rect x="64.5" y="72.5" width="231" height="261" rx="3" fill="none" stroke="#e6c48a" strokeOpacity="0.3" />
 
+      {/* ---------- Ridge line on the raised panel ---------- */}
       <rect x="68.5" y="468.5" width="223" height="251" fill="none" stroke="#120804" strokeOpacity="0.3" />
       <rect x="69.5" y="469.5" width="221" height="249" fill="none" stroke="#e0b27a" strokeOpacity="0.14" />
 
+      {/* ---------- Name plate ---------- */}
       <g filter="url(#pxs-hardware-shadow)">
         <rect x="112" y="381" width="136" height="36" rx="2.5" fill="url(#pxs-brass)" />
         <rect x="113" y="382" width="134" height="34" rx="2" fill="none" stroke="#fff5d2" strokeOpacity="0.5" />
         <circle cx="120" cy="399" r="2.1" fill="#6d4f24" />
         <circle cx="240" cy="399" r="2.1" fill="#6d4f24" />
       </g>
-      <text
-        x="180"
-        y="405"
-        textAnchor="middle"
-        fontFamily="Manrope, 'DM Sans', sans-serif"
-        fontSize="16"
-        fontWeight="800"
-        letterSpacing="0.4"
-        fill="#fff3cb"
-        opacity="0.75"
-        dy="0.9"
-      >
-        ProxiSpeak
-      </text>
-      <text
-        x="180"
-        y="405"
-        textAnchor="middle"
-        fontFamily="Manrope, 'DM Sans', sans-serif"
-        fontSize="16"
-        fontWeight="800"
-        letterSpacing="0.4"
-        fill="#4a3515"
-      >
-        ProxiSpeak
-      </text>
 
+      {/* ---------- Deadbolt ---------- */}
       <g filter="url(#pxs-hardware-shadow)">
         <circle cx="334" cy="470" r="14" fill="url(#pxs-rose)" />
         <circle cx="334" cy="470" r="9.5" fill="url(#pxs-brass)" />
@@ -232,19 +243,78 @@ export default function OfficeDoor() {
         <path d="M334 465.4a2.4 2.4 0 1 1 0 4.8 2.4 2.4 0 0 1 0-4.8Zm-1.2 3.6h2.4l.8 5.2h-4Z" fill="#1b1006" />
       </g>
 
+      {/* ---------- Lever handle ---------- */}
       <g filter="url(#pxs-hardware-shadow)">
         <circle cx="334" cy="399" r="16.5" fill="url(#pxs-rose)" />
         <circle cx="334" cy="399" r="12" fill="none" stroke="#fff2c4" strokeOpacity="0.55" />
         <circle cx="334" cy="399" r="16.5" fill="none" stroke="#4d3817" strokeOpacity="0.6" />
-        <g className="lever">
+        <g>
           <rect x="268" y="393" width="72" height="12" rx="6" fill="url(#pxs-brass)" />
           <rect x="268.5" y="393.5" width="71" height="11" rx="5.5" fill="none" stroke="#4d3817" strokeOpacity="0.55" />
           <circle cx="334" cy="399" r="8" fill="url(#pxs-rose)" />
         </g>
       </g>
 
+      {/* ---------- Overall light and shade ---------- */}
       <rect width="360" height="800" fill="url(#pxs-ambient)" pointerEvents="none" />
       <rect width="360" height="800" fill="url(#pxs-side)" pointerEvents="none" />
     </svg>
   );
+}
+
+/**
+ * Draws the door once, then shows it as a plain bitmap.
+ *
+ * The SVG filters (grain, relief lighting, glass refraction) are expensive. Left
+ * live, the browser re-runs them while the door rotates and the page stutters.
+ * Baked into a canvas, the swing is just the GPU turning a texture.
+ */
+export default function OfficeDoor() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const markup = renderToStaticMarkup(<DoorArt />).replace(
+      "<svg ",
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${BAKE_W}" height="${BAKE_H}" `
+    );
+
+    const image = new Image();
+    image.onload = async () => {
+      if (cancelled) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(image, 0, 0, BAKE_W, BAKE_H);
+
+      // Engraved name on the brass plate (needs the web font, so it is drawn here).
+      try {
+        await Promise.race([
+          document.fonts.load('800 32px "Manrope"'),
+          new Promise((resolve) => setTimeout(resolve, 1500)),
+        ]);
+      } catch {
+        /* fall back to the system font */
+      }
+      if (cancelled) return;
+      ctx.font = '800 32px Manrope, "DM Sans", sans-serif';
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      (ctx as CanvasRenderingContext2D & { letterSpacing?: string }).letterSpacing = "0.8px";
+      ctx.fillStyle = "rgba(255, 243, 203, 0.75)";
+      ctx.fillText("ProxiSpeak", 360, 812 + 1.8);
+      ctx.fillStyle = "#4a3515";
+      ctx.fillText("ProxiSpeak", 360, 812);
+      canvas.dataset.ready = "true";
+    };
+    image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`;
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="door-art" width={BAKE_W} height={BAKE_H} aria-hidden="true" />;
 }

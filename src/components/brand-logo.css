@@ -1,4 +1,4 @@
-
+/* Selectors are doubled (.pxs-logo.pxs-logo--x) so they beat index.css, which loads later. */
 .pxs-logo {
   display: inline-flex;
   align-items: center;

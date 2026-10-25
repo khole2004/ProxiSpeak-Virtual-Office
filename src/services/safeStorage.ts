@@ -1,6 +1,15 @@
+/**
+ * Tiny wrapper around localStorage / sessionStorage.
+ *
+ * Browser storage can be missing, blocked (private mode, strict privacy
+ * settings) or full, and any of its methods can throw. This wrapper never
+ * throws; when storage is unavailable it falls back to a per-page-load
+ * in-memory copy so the demo keeps working until the tab is closed.
+ */
 export type StorageArea = "local" | "session";
 
 const memory = new Map<string, string>();
+/** Keys whose last write to real storage failed; memory is the truth for these. */
 const memoryOnly = new Set<string>();
 
 function getArea(area: StorageArea): Storage | null {
@@ -48,6 +57,7 @@ export function writeJson(area: StorageArea, key: string, value: unknown): void 
     storage.setItem(key, text);
     memoryOnly.delete(id);
   } catch {
+    // Quota exceeded or storage blocked: keep working from memory.
     memoryOnly.add(id);
   }
 }

@@ -23,14 +23,6 @@ npm run dev
 
 Open the local URL printed by Vite. The development command attempts to download the optional rooms-screen photo into `public/studio.png`. If that download is unavailable, the app still runs with a plain green background; the image can also be added manually at that path.
 
-## Available commands
-
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the Vite development server. |
-| `npm run build` | Type-check the project and create a production build in `dist/`. |
-| `npm run preview` | Preview the production build locally. |
-| `npm run fetch-photo` | Attempt to download the optional rooms-screen photo. |
 
 ## App routes
 
@@ -61,3 +53,4 @@ These client-side behaviors are for the prototype only. A backend should own aut
 - TypeScript
 - Vite
 - React Router
+

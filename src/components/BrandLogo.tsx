@@ -1,11 +1,15 @@
 import "./brand-logo.css";
 
 interface BrandLogoProps {
-
+  /** "light" for the stone backgrounds, "dark" for use over the photo. */
   tone?: "light" | "dark";
 }
 
-
+/**
+ * ProxiSpeak logo: two overlapping rings (two people close enough to hear each
+ * other) with the shared area lit amber. Same artwork as the Figma file's
+ * "Logo/On light" and "Logo/On dark" components.
+ */
 export default function BrandLogo({ tone = "light" }: BrandLogoProps) {
   return (
     <span className={`pxs-logo pxs-logo--${tone}`}>
