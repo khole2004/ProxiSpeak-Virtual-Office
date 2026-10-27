@@ -1,0 +1,388 @@
+
+.meeting-lobby {
+  --lobby-bg: #0b1020;
+  --lobby-card: #141c30;
+  --lobby-border: #29344b;
+  --lobby-text: #f3f6ff;
+  --lobby-muted: #a4aec4;
+  --lobby-accent: #8b7cff;
+
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--lobby-bg);
+  color: var(--lobby-text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  padding: 0 6%;
+}
+
+.meeting-lobby * {
+  box-sizing: border-box;
+}
+
+.lobby-glow {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.16;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.lobby-glow-one {
+  top: 10%;
+  left: -180px;
+  background: #7164ff;
+}
+
+.lobby-glow-two {
+  right: -180px;
+  bottom: 5%;
+  background: #27c5d9;
+}
+
+.lobby-header {
+  min-height: 82px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lobby-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 750;
+  font-size: 19px;
+  letter-spacing: -0.5px;
+}
+
+.lobby-brand-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #9a8cff, #5c4bd9);
+  color: white;
+  font-size: 21px;
+}
+
+.lobby-header-label,
+.lobby-eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 750;
+  color: #b5aaff;
+}
+
+.lobby-content {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 64px 0 72px;
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.lobby-intro h1 {
+  font-size: clamp(36px, 5vw, 58px);
+  letter-spacing: -2px;
+  line-height: 1.06;
+  margin: 18px 0;
+}
+
+.lobby-intro > p {
+  color: var(--lobby-muted);
+  line-height: 1.8;
+  font-size: 15px;
+  max-width: 400px;
+}
+
+.lobby-user {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 36px;
+}
+
+.lobby-user-avatar {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #282b51;
+  border: 1px solid #514a87;
+  color: #c7c0ff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.lobby-user div:last-child {
+  display: grid;
+  gap: 5px;
+}
+
+.lobby-user strong {
+  font-size: 14px;
+}
+
+.lobby-user div span {
+  color: var(--lobby-muted);
+  font-size: 12px;
+}
+
+.lobby-panel {
+  background: rgba(20, 28, 48, 0.92);
+  border: 1px solid var(--lobby-border);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+}
+
+.lobby-preview {
+  position: relative;
+  height: 245px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #080d19;
+  display: grid;
+  place-items: center;
+}
+
+.lobby-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.lobby-camera-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  background:
+    radial-gradient(ellipse at center, rgba(61, 70, 111, 0.32), transparent 70%),
+    #0b1020;
+  color: var(--lobby-muted);
+  pointer-events: none;
+}
+
+.lobby-camera-icon {
+  font-size: 37px;
+  color: #a69aff;
+  margin-bottom: 3px;
+}
+
+.lobby-camera-placeholder strong {
+  color: var(--lobby-text);
+  font-size: 14px;
+}
+
+.lobby-camera-placeholder span {
+  font-size: 12px;
+  text-align: center;
+  padding: 0 12px;
+}
+
+.lobby-preview-label {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 7px;
+  background: rgba(8, 13, 25, 0.78);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.lobby-live-dot {
+  width: 7px;
+  height: 7px;
+  background: #7e85a0;
+  border-radius: 50%;
+}
+
+.lobby-device-list {
+  display: grid;
+  gap: 0;
+  margin-top: 12px;
+}
+
+.lobby-device {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 83px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.lobby-device-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #222b43;
+  color: #c3baff;
+  font-size: 22px;
+}
+
+.lobby-device-info {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.lobby-device-info strong {
+  font-size: 13px;
+}
+
+.lobby-device-info > span {
+  color: var(--lobby-muted);
+  font-size: 11px;
+}
+
+.lobby-device-button {
+  background: transparent;
+  border: 1px solid #46516c;
+  color: #e2e5f3;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lobby-device-button:hover {
+  border-color: #a397ff;
+  background: rgba(139, 124, 255, 0.1);
+}
+
+.lobby-device-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.lobby-meter {
+  height: 5px;
+  max-width: 180px;
+  width: 100%;
+  overflow: hidden;
+  background: #303a52;
+  border-radius: 5px;
+  margin-top: 4px;
+}
+
+.lobby-meter-fill {
+  height: 100%;
+  background: #63dfae;
+  border-radius: inherit;
+  transition: width 70ms linear;
+}
+
+.lobby-error {
+  color: #ffb7c0;
+  font-size: 12px;
+  line-height: 1.6;
+  background: rgba(255, 94, 120, 0.08);
+  border: 1px solid rgba(255, 94, 120, 0.2);
+  padding: 10px 12px;
+  border-radius: 9px;
+}
+
+.lobby-join-button {
+  width: 100%;
+  margin-top: 20px;
+  min-height: 49px;
+  border: none;
+  border-radius: 11px;
+  background: linear-gradient(110deg, #8e7bff, #6554e8);
+  color: white;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(101, 84, 232, 0.2);
+}
+
+.lobby-join-button:hover {
+  filter: brightness(1.1);
+}
+
+.lobby-join-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.lobby-privacy {
+  margin: 13px 8px 2px;
+  color: #8994ad;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .meeting-lobby {
+    padding: 0 5%;
+  }
+
+  .lobby-content {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 40px;
+  }
+
+  .lobby-intro h1 {
+    font-size: 40px;
+  }
+
+  .lobby-user {
+    margin-top: 22px;
+  }
+
+  .lobby-preview {
+    height: 220px;
+  }
+}
+
+@media (max-width: 420px) {
+  .lobby-header-label {
+    font-size: 9px;
+    letter-spacing: 1px;
+  }
+
+  .lobby-panel {
+    padding: 12px;
+  }
+
+  .lobby-device {
+    gap: 8px;
+  }
+
+  .lobby-device-button {
+    padding: 8px;
+    font-size: 10px;
+  }
+}
