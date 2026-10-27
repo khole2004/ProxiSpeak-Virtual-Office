@@ -223,31 +223,24 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
-  try {
-    if (!process.env.MONGODB_URI) {
-      throw new Error("MONGODB_URI is missing from .env");
-    }
-
-    if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is missing from .env");
-    }
-
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("MongoDB connected successfully.");
-
-    httpServer.listen(PORT, () => {
-      console.log(
-        `ProxiSpeak server running at http://localhost:${PORT}`
-      );
-    });
-  } catch (error) {
-    console.error(
-      "Server startup failed:",
-      error.message
+  httpServer.listen(PORT, () => {
+    console.log(
+      "ProxiSpeak server running at http://localhost:5000"
     );
+  });
 
-    process.exit(1);
+  if (process.env.MONGODB_URI) {
+    try {
+      await mongoose.connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 2500,
+      });
+      console.log("MongoDB connected successfully.");
+    } catch (error) {
+      console.warn("MongoDB offline (running in local mode):", error.message);
+    }
   }
 }
 
 startServer();
+
+
