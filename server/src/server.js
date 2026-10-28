@@ -13,10 +13,7 @@ const httpServer = http.createServer(app);
 // Middleware
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-    ],
+    origin: true, credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   })
 );
@@ -37,10 +34,7 @@ app.get("/", (req, res) => {
 // Socket.IO setup
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-    ],
+    origin: true, credentials: true,
     methods: ["GET", "POST"],
   },
 });
@@ -242,5 +236,6 @@ async function startServer() {
 }
 
 startServer();
+
 
 
