@@ -1,154 +1,170 @@
-# ProxiSpeak – Virtual Office
+# ProxiSpeak – Geospatial Proximity Audio Virtual Office
 
-## About the Project
+A real-time 2D virtual office and proximity-based audio communication ecosystem for remote teams. Instead of traditional grid-based video calls, team members interact through personalized avatars on an interactive canvas, where spatial audio naturally fades with distance—simulating organic, in-person workplace interactions.
 
-ProxiSpeak is a virtual office application where people can meet and communicate online using avatars. Instead of joining a traditional video call, users can move their avatars around a virtual workspace and talk to other people nearby.
+---
 
-The main idea is to make online communication feel more natural, similar to how people interact in a real office.
+## 🌟 Key Features
 
-When two users are close to each other in the virtual space, their voices can be heard clearly. As they move farther apart, the volume of their voices gradually decreases.
+### 1. 🏢 Interactive Virtual Office & Canvas
+- **Shared Spatial Workspace**: Navigate avatars across an office layout in real-time.
+- **Dynamic Movement & Positioning**: Smooth avatar drag-and-drop or directional movement synchronized instantly across all connected team members.
+- **Visual Rooms & Zones**: Designated meeting areas, open office spaces, and private desk clusters.
 
-## Features
+### 2. 🎧 Distance-Based Proximity Audio
+- **Natural Attenuation**: Voice volume is dynamically calculated and adjusted via Web Audio API `GainNode` based on Euclidean distance between avatars.
+- **Immediate Proximity**: Crisp, full-volume audio when avatars are close to each other.
+- **Organic Fading**: Audio fades smoothly as participants move apart, dropping to zero beyond a defined spatial perimeter to avoid chatter overload.
 
-- **Virtual Office:** A shared virtual workspace where users can interact.
-- **Avatar-Based Interaction:** Users are represented by avatars inside the workspace.
-- **Real-Time Voice Chat:** Users can communicate using their microphones.
-- **Proximity-Based Audio:** Voice volume changes according to the distance between users.
-- **WebRTC Communication:** Enables real-time audio communication between participants.
-- **Socket.IO Signaling:** Helps participants exchange the information required to establish voice connections.
-- **User Authentication:** Supports user registration and login.
+### 3. 🎙️ Real-Time Voice Activity & Mute Controls
+- **Voice Activity Detection (VAD)**: Real-time microphone audio level monitoring via Web Audio `AnalyserNode`.
+- **Speaking Wave Pulse**: Dynamic animated glowing ring around the avatar head when a participant speaks.
+- **Mute / Unmute Controls**: Quick toggle button with immediate visual status badges (mute icon indicator) synchronized across all peers.
 
-## Technologies Used
+### 4. 🌐 Robust WebRTC Audio Architecture & NAT Traversal
+- **Peer-to-Peer Mesh Audio**: Low-latency direct media streams between active participants.
+- **STUN & TURN Server Integration**: Integrated with Metered OpenRelay TURN servers (over UDP, TCP ports 80/443) ensuring seamless audio relay across restrictive firewalls and symmetric NATs.
 
-**Frontend**
+### 5. 🔐 User Authentication & Session Management
+- **Animated Sign-in Experience**: Engaging office-door login/registration UI with form validation.
+- **JWT & Persistent Accounts**: Secure authentication powered by Express, bcrypt, and MongoDB.
+- **Resilient Fallback Mode**: In-memory session fallback ensuring seamless development and testing even when local database services are offline.
 
-- React.js
-- Vite
-- JavaScript
-- HTML and CSS
+---
 
-**Backend**
+## 🛠️ Tech Stack
 
-- Node.js
-- Express.js
-- Socket.IO
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 18, Vite, JavaScript, HTML5 Canvas / CSS3 Animations |
+| **Real-Time Signaling** | Socket.IO (Signaling, coordinate broadcast, speaking/mute state sync) |
+| **Audio & Media** | WebRTC (`RTCPeerConnection`), Web Audio API (`AudioContext`, `GainNode`, `AnalyserNode`) |
+| **NAT Traversal** | Metered OpenRelay TURN / STUN servers |
+| **Backend** | Node.js, Express.js |
+| **Database & Security** | MongoDB Atlas, Mongoose ODM, JWT, bcryptjs |
 
-**Real-Time Communication**
+---
 
-- WebRTC
-- Web Audio API
-- GainNode for controlling audio volume based on distance
+## 📐 Architecture & How Proximity Audio Works
 
-**Database and Authentication**
+```text
+[ Microphones ]
+      │
+      ▼
+[ Web Audio API ] ────► [ AnalyserNode ] ──► Voice Activity / Speaking Pulse Animation
+      │
+      ▼
+[ RTCPeerConnection (WebRTC) ] ◄──► [ Metered TURN / STUN Relays ]
+      │
+      ▼
+[ Remote Audio Stream ]
+      │
+      ▼
+[ GainNode (Distance Attenuation) ] ◄── Euclidean Distance (User A (x,y) ↔ User B (x,y))
+      │
+      ▼
+[ Destination (Headphones/Speakers) ]
+```
 
-- MongoDB
-- Mongoose
-- JWT
-- bcrypt
+1. **Microphone Capture**: User grants microphone access; Web Audio API creates an `AudioContext`.
+2. **Signaling Exchange**: Participants exchange WebRTC SDP offers/answers and ICE candidates over Socket.IO.
+3. **Continuous Spatial Tracking**: As avatars move, coordinates `(x, y)` are broadcast to the room.
+4. **Distance Calculation**: The application computes the Euclidean distance between avatars:
+   $$\text{distance} = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
+5. **Gain Modulation**: Volume is scaled from `1.0` (close) down to `0.0` (beyond hearing radius) using exponential / linear audio curves.
+6. **Voice Activity Sync**: When local volume exceeds the detection threshold, Socket.IO broadcasts speaking state to display real-time pulse animations on avatar heads.
 
-## How Proximity-Based Audio Works
+---
 
-ProxiSpeak uses the positions of avatars to calculate the distance between participants.
-
-1. A user grants microphone permission.
-2. WebRTC establishes an audio connection between participants.
-3. Socket.IO helps exchange signaling information.
-4. The application calculates the distance between avatars using their positions.
-5. The Web Audio API adjusts the volume of each remote participant.
-6. Nearby users can be heard more clearly, while the voices of distant users become quieter.
-
-This feature helps create a more realistic virtual office experience.
-
-## Project Structure
+## 📁 Project Structure
 
 ```text
 proxispeck/
-├── client/
+├── client/                     # Frontend Application (React + Vite)
+│   ├── public/                 # Static assets (office graphics, icons)
 │   ├── src/
-│   │   └── services/
-│   │       └── audio/
-│   │           ├── audioManager.js
-│   │           ├── audioSocket.js
-│   │           ├── microphone.js
-│   │           ├── webrtc.js
-│   │           └── proximityAudio.js
-│   └── package.json
+│   │   ├── services/
+│   │   │   └── audio/
+│   │   │       ├── audioManager.js      # Audio stream & mute controller
+│   │   │       ├── audioSocket.js       # Socket.IO signaling connection
+│   │   │       ├── microphone.js        # Mic permissions & stream capture
+│   │   │       ├── proximityAudio.js    # Distance & GainNode calculation
+│   │   │       ├── speechDetector.js    # VAD & volume threshold analysis
+│   │   │       └── webrtc.js            # PeerConnection & TURN config
+│   │   ├── Workspace.jsx       # Main 2D office canvas & avatar management
+│   │   ├── style.css           # UI styles, pulse animations, layout
+│   │   ├── App.jsx             # Routes & layout wrapper
+│   │   └── main.jsx            # React root mount
+│   ├── package.json
+│   └── vite.config.js
 │
-├── server/
+├── server/                     # Backend Signaling & Auth Server (Node.js)
+│   ├── routes/
+│   │   └── auth.js             # Registration & login with DB/memory fallback
+│   ├── models/
+│   │   └── User.js             # Mongoose user schema
+│   ├── src/
+│   │   └── server.js           # Express app, Socket.IO handlers & WebRTC relay
+│   ├── .env.example            # Sample environment variables
 │   └── package.json
 │
 ├── .gitignore
-└── README.md
+└── README.md                   # Complete Project Documentation
 ```
 
-_Note: This is the main project structure. Other files and folders may exist in the repository._
+---
 
-## Requirements
+## 🚀 Getting Started Locally
 
-Before running the project, install:
-
-- Node.js and npm
-- MongoDB, if using a local database
-- A modern browser such as Google Chrome
-- Git (optional, for version control)
-
-## How to Run the Project
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [Git](https://git-scm.com/)
+- Modern Web Browser (Google Chrome, Microsoft Edge, Brave, Firefox) with microphone permissions enabled
 
 ### 1. Clone the Repository
-
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/khole2004/proxispeck.git
 cd proxispeck
 ```
 
-Replace `<your-repository-url>` with your GitHub repository URL.
-
-### 2. Install Frontend Dependencies
-
-```bash
-cd client
-npm install
-```
-
-### 3. Start the Frontend
-
-```bash
-npm run dev
-```
-
-Keep this terminal running. Vite will display the local URL for the frontend.
-
-### 4. Start the Backend
-
-Open a second terminal and navigate to the server folder:
-
+### 2. Start the Backend Server
+Open a terminal in the root directory:
 ```bash
 cd server
 npm install
+npm run dev
+# or
+node src/server.js
 ```
+The backend server will start on `http://localhost:5000`.  
+*(Note: If MongoDB is not running locally, the server automatically uses in-memory authentication for local testing).*
 
-Configure the required environment variables and MongoDB connection according to the server configuration. Then start the backend using the script defined in `server/package.json`. For example, if the project defines a `dev` script:
-
+### 3. Start the Frontend Application
+Open a second terminal:
 ```bash
+cd client
+npm install
 npm run dev
 ```
+Open the local URL displayed by Vite (typically `http://localhost:5173`) in your browser.
 
-The audio signaling client currently connects to `http://localhost:5000`.
+### 4. Test Multi-User Interaction
+- Open `http://localhost:5173` in a normal browser window and log in.
+- Open `http://localhost:5173` in an Incognito / Private window (or a second browser) and log in as a second user.
+- Allow microphone access on both.
+- Drag avatars close to each other to hear proximity audio; observe speaking wave animations when talking.
 
-**Important:** The frontend and backend must both be running for the application to work properly. If your project uses different scripts or configuration, follow the settings in its `package.json` and server files.
+---
 
-## Team Project
+## 👥 Team Collaboration (Infotact Solutions)
 
-ProxiSpeak is being developed as a team project. Each team member contributes to different parts of the application, including the user interface, backend functionality, and real-time communication.
+This project is developed by **Batch-22** under the Infotact Solutions Internship Program:
+- **Member A**: User Interface, Animated Sign-in flow, and Virtual Office layout prototype.
+- **Member B**: Interactive Canvas, Avatar Movement mechanics, and coordinate synchronization.
+- **Member C**: WebRTC Mesh setup, Socket.IO signaling, and Proximity Audio GainNode integration.
+- **Member D**: Speaking activity detection, visual pulse wave animations, mute/unmute controls, TURN relay integration, auth fallback, and release packaging.
 
-## Future Improvements
+---
 
-- Improve audio connection reliability.
-- Make avatar movement and audio volume updates work smoothly together.
-- Add more virtual rooms and workspace features.
-- Improve microphone controls and participant management.
-- Deploy the application so users can connect from different devices.
-
-## Conclusion
-
-ProxiSpeak aims to make remote collaboration more interactive by combining a virtual workspace, avatars, real-time voice communication, and distance-based audio. It provides a foundation for creating a more natural online office experience.
+## 📄 License
+This project is developed for educational and evaluation purposes under the Infotact Solutions Internship Program.
