@@ -16,12 +16,12 @@ A real-time 2D virtual office and proximity-based audio communication ecosystem 
 - **Immediate Proximity**: Crisp, full-volume audio when avatars are close to each other.
 - **Organic Fading**: Audio fades smoothly as participants move apart, dropping to zero beyond a defined spatial perimeter to avoid chatter overload.
 
-### 3. 🎙️ Real-Time Voice Activity & Mute Controls
+### 3. 🎙️ Real-Time Voice Activity & Mute Controls (Module 7)
 - **Voice Activity Detection (VAD)**: Real-time microphone audio level monitoring via Web Audio `AnalyserNode`.
 - **Speaking Wave Pulse**: Dynamic animated glowing ring around the avatar head when a participant speaks.
 - **Mute / Unmute Controls**: Quick toggle button with immediate visual status badges (mute icon indicator) synchronized across all peers.
 
-### 4. 🌐 Robust WebRTC Audio Architecture & NAT Traversal
+### 4. 🌐 Robust WebRTC Audio Architecture & NAT Traversal (Module 8)
 - **Peer-to-Peer Mesh Audio**: Low-latency direct media streams between active participants.
 - **STUN & TURN Server Integration**: Integrated with Metered OpenRelay TURN servers (over UDP, TCP ports 80/443) ensuring seamless audio relay across restrictive firewalls and symmetric NATs.
 
@@ -29,6 +29,23 @@ A real-time 2D virtual office and proximity-based audio communication ecosystem 
 - **Animated Sign-in Experience**: Engaging office-door login/registration UI with form validation.
 - **JWT & Persistent Accounts**: Secure authentication powered by Express, bcrypt, and MongoDB.
 - **Resilient Fallback Mode**: In-memory session fallback ensuring seamless development and testing even when local database services are offline.
+
+---
+
+## 📚 Curriculum & Module Breakdown (Infotact Solutions)
+
+This project strictly adheres to the 8 core development modules specified in the **Infotact Solutions Project Execution Handbook**:
+
+| Module | Component | Key Implementations | Owner |
+|---|---|---|---|
+| **Module 1** | Workspace & Canvas Architecture | React 18 base canvas, office layout background, viewports | Member A & B |
+| **Module 2** | User Authentication & Profiles | Sign-in modal, form validation, JWT token issuance | Member A |
+| **Module 3** | Avatar Spatial Movement | Coordinate tracking, drag-and-drop mechanics, boundary clamping | Member B |
+| **Module 4** | Real-Time Coordinate Sync | Socket.IO room join, position broadcasting, active peer updates | Member B & C |
+| **Module 5** | WebRTC Audio Connection | `RTCPeerConnection` mesh network, local mic capture, SDP/ICE signaling | Member C |
+| **Module 6** | Proximity Audio Attenuation | Euclidean distance calculation, Web Audio API `AudioContext` & `GainNode` | Member C |
+| **Module 7** | Voice Activity & Speaking Indicators | `AnalyserNode` threshold detection, avatar pulse wave animation, mute sync | **Member D** |
+| **Module 8** | TURN Server Relay & Deployment | Metered TURN integration, cross-network relay, build audit & packaging | **Member D** |
 
 ---
 
@@ -71,8 +88,23 @@ A real-time 2D virtual office and proximity-based audio communication ecosystem 
 3. **Continuous Spatial Tracking**: As avatars move, coordinates `(x, y)` are broadcast to the room.
 4. **Distance Calculation**: The application computes the Euclidean distance between avatars:
    $$\text{distance} = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$$
-5. **Gain Modulation**: Volume is scaled from `1.0` (close) down to `0.0` (beyond hearing radius) using exponential / linear audio curves.
+5. **Gain Modulation**: Volume is scaled from `1.0` (close) down to `0.0` (beyond hearing radius) using smooth audio curves.
 6. **Voice Activity Sync**: When local volume exceeds the detection threshold, Socket.IO broadcasts speaking state to display real-time pulse animations on avatar heads.
+
+---
+
+## 📡 Real-Time Socket.IO Signaling Matrix
+
+| Event Name | Direction | Payload | Description |
+|---|---|---|---|
+| `join-room` | Client ➔ Server | `{ roomId, displayName, position }` | User joins room, initializes coordinates |
+| `avatar-position-update` | Bidirectional | `{ participantId, position, displayName }` | Broadcasts avatar `(x, y)` coordinates |
+| `signal` | Bidirectional | `{ to, from, signal }` | Relays WebRTC SDP Offer/Answer and ICE candidates |
+| `speaking` | Client ➔ Server | `{ roomId, isSpeaking }` | Broadcasts voice activity state for pulse animation |
+| `user-speaking` | Server ➔ Peers | `{ participantId, isSpeaking }` | Displays/hides pulsating ring on avatar head |
+| `toggle-mute` | Client ➔ Server | `{ roomId, isMuted }` | Broadcasts microphone mute/unmute state |
+| `user-mute-status` | Server ➔ Peers | `{ participantId, isMuted }` | Displays/hides mute badge (`🔇`) on peer avatar |
+| `audio-participant-left` | Server ➔ Peers | `participantId` | Cleans up WebRTC peer connection and avatar node |
 
 ---
 
@@ -153,6 +185,21 @@ Open the local URL displayed by Vite (typically `http://localhost:5173`) in your
 - Open `http://localhost:5173` in an Incognito / Private window (or a second browser) and log in as a second user.
 - Allow microphone access on both.
 - Drag avatars close to each other to hear proximity audio; observe speaking wave animations when talking.
+
+---
+
+## 🎯 Viva & Review Quick Reference (Evaluator Cheat-Sheet)
+
+1. **Why WebRTC Mesh over SFU for this project?**
+   - For team sizes up to 4–6 participants in virtual rooms, WebRTC mesh delivers the lowest latency with zero media server overhead, keeping audio direct peer-to-peer.
+2. **Why Web Audio API `GainNode` instead of HTML5 `<audio volume>`?**
+   - `GainNode` operates natively in the audio rendering graph on raw byte streams without introducing pipeline stalls, clicks, or latency, enabling smooth linear/exponential volume attenuation based on continuous avatar movement.
+3. **How does Voice Activity Detection (VAD) work without lagging the app?**
+   - We tap into the local `MediaStream` using an `AnalyserNode`, compute the Root Mean Square (RMS) volume level via requestAnimationFrame, and broadcast a lightweight boolean only when the speaking status transitions.
+4. **Why do we need a TURN server?**
+   - In real-world networks (mobile hotspots, corporate/college Wi-Fi), symmetric NATs and firewalls block direct P2P connections. Metered OpenRelay TURN relays audio over ports 80/443 TCP/UDP as a guaranteed fallback.
+5. **How does Authentication handle offline MongoDB?**
+   - `server/routes/auth.js` implements an in-memory credential map (`memoryUsers`) as an automated fallback. If MongoDB Atlas is unreachable on localhost, login and registration continue without crashing the server.
 
 ---
 

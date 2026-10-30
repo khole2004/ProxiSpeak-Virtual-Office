@@ -10,3 +10,6 @@ server/dist/
 *.log
 .vscode/
 .DS_Store
+
+# Ignore nested clone directory
+ProxiSpeak-Dev/
