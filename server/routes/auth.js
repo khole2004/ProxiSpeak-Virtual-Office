@@ -174,14 +174,19 @@ router.post("/login", async (req, res) => {
       if (!user) {
         // Auto-create local account for instant review/testing
         const passwordHash = await bcrypt.hash(password, 10);
+        const displayName =
+          typeof req.body.displayName === "string" && req.body.displayName.trim()
+            ? req.body.displayName.trim()
+            : cleanEmail.split("@")[0] || "Teammate";
+
         user = {
           id: "mem_" + Date.now(),
-          displayName: cleanEmail.split("@")[0] || "Teammate",
+          displayName,
           email: cleanEmail,
           passwordHash,
         };
         memoryUsers.set(cleanEmail, user);
-        console.log(`[Auth] Auto-created local memory user for login: ${cleanEmail}`);
+        console.log(`[Auth] Auto-created local memory user for login: ${cleanEmail} (${displayName})`);
       } else {
         const matches = await bcrypt.compare(password, user.passwordHash);
         if (!matches) {

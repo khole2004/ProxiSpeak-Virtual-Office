@@ -230,7 +230,7 @@ async function startServer() {
       });
       console.log("MongoDB connected successfully.");
     } catch (error) {
-      console.warn("MongoDB offline (running in local mode):", error.message);
+      console.log("MongoDB offline. Running in Local In-Memory Mode (All Login and Register requests work seamlessly).");
     }
   }
 }

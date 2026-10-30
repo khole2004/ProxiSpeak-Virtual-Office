@@ -15,6 +15,7 @@ export default function App() {
   async function handleLogin(credentials) {
     try {
       const result = await loginUser({
+        displayName: credentials.displayName,
         email: credentials.email,
         password: credentials.password,
       });
