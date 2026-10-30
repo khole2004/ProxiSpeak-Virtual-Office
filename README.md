@@ -111,7 +111,7 @@ This project strictly adheres to the 8 core development modules specified in the
 ## 📁 Project Structure
 
 ```text
-proxispeck/
+ProxiSpeak-Virtual-Office/
 ├── client/                     # Frontend Application (React + Vite)
 │   ├── public/                 # Static assets (office graphics, icons)
 │   ├── src/
@@ -155,8 +155,8 @@ proxispeck/
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/khole2004/proxispeck.git
-cd proxispeck
+git clone https://github.com/khole2004/ProxiSpeak-Virtual-Office.git
+cd ProxiSpeak-Virtual-Office
 ```
 
 ### 2. Start the Backend Server
