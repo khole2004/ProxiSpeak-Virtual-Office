@@ -1,0 +1,473 @@
+/*
+ * Room selection + office placeholder: photo panel + form panel.
+ * Tokens mirror the Figma file "ProxiSpeak – Rooms screen" (Color variables).
+ * Scoped under .rooms-page because index.css loads after component CSS and
+ * would otherwise win equal-specificity ties. Reduced motion is handled by the
+ * global rule in index.css.
+ */
+
+.rooms-page {
+  --bg-page: #e9e8e1;
+  --bg-card: #fcfbf8;
+  --bg-field: #ffffff;
+  --bg-segment: #efeee8;
+  --border: #dfe5df;
+  --border-strong: #b9c6b8;
+  --ink: #24332e;
+  --body: #50605a;
+  --placeholder: #8c958f;
+  --green: #315f4a;
+  --green-hover: #264d3b;
+  --sage: #78947b;
+  --error: #8a4731;
+  --success: #2b6747;
+  --on-dark: #f4efe2;
+
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  grid-template-columns: minmax(420px, 44%) minmax(0, 1fr);
+  background: var(--bg-page);
+  color: var(--ink);
+}
+
+.rooms-page :focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 2px;
+}
+
+.rooms-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Photo panel ---------- */
+
+.rooms-page .rooms-photo {
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 100vh;
+  height: 100svh;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 56px 56px;
+  background-color: #1c352d;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgb(18 33 28 / 35%) 0%,
+      rgb(18 33 28 / 0%) 30%,
+      rgb(18 33 28 / 10%) 55%,
+      rgb(18 33 28 / 86%) 100%
+    ),
+    url("/studio.png");
+  background-position: center;
+  background-size: cover;
+  color: var(--on-dark);
+}
+
+.rooms-page .rooms-brand {
+  align-self: flex-start;
+  text-decoration: none;
+}
+
+.rooms-page .rooms-eyebrow {
+  margin: 0 0 14px;
+  color: var(--on-dark);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  opacity: 0.75;
+}
+
+.rooms-page .rooms-intro h1 {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 52px;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.rooms-page .rooms-lede {
+  max-width: 420px;
+  margin: 14px 0 0;
+  font-size: 17px;
+  line-height: 26px;
+  opacity: 0.85;
+}
+
+/* ---------- Form panel ---------- */
+
+.rooms-page .rooms-panel-area {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.rooms-page .rooms-header {
+  display: flex;
+  height: 96px;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 68px;
+}
+
+.rooms-page .rooms-link {
+  padding: 12px 0;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rooms-page .rooms-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.rooms-page .rooms-body {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40px 56px;
+}
+
+.rooms-page .rooms-stack {
+  display: flex;
+  width: 100%;
+  max-width: 480px;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rooms-page .rooms-note {
+  max-width: 440px;
+  margin: 0 auto;
+  color: var(--body);
+  font-size: 13px;
+  line-height: 20px;
+  text-align: center;
+}
+
+/* ---------- Card ---------- */
+
+.rooms-page .rooms-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+  box-shadow:
+    0 24px 60px rgb(36 43 36 / 12%),
+    0 2px 8px rgb(36 43 36 / 6%);
+}
+
+.rooms-page .rooms-divider {
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--border);
+}
+
+/* Fields (override the login .field-group sizes to match the design) */
+
+.rooms-page .field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rooms-page .field-group label {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rooms-page .field-group input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-field);
+  color: var(--ink);
+  font-size: 15px;
+  transition: border-color 140ms, box-shadow 140ms;
+}
+
+.rooms-page .field-group input::placeholder {
+  color: var(--placeholder);
+}
+
+.rooms-page .field-group input:hover {
+  border-color: var(--border-strong);
+}
+
+.rooms-page .field-group input:focus,
+.rooms-page .field-group input:focus-visible {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgb(49 95 74 / 20%);
+  outline: none;
+}
+
+.rooms-page .field-group input[aria-invalid="true"] {
+  border-color: #b4684f;
+}
+
+.rooms-page .field-group input.code-input {
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.rooms-page .field-group input.code-input::placeholder {
+  font-weight: 600;
+}
+
+.rooms-page .field-hint,
+.rooms-page .field-error,
+.rooms-page .field-found {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.rooms-page .field-hint {
+  color: var(--body);
+}
+
+.rooms-page .field-error {
+  color: var(--error);
+  font-weight: 500;
+}
+
+.rooms-page .field-found {
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ---------- Tabs ---------- */
+
+.rooms-page .rooms-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--bg-segment);
+}
+
+.rooms-page .rooms-tab {
+  flex: 1;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--body);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 140ms, color 140ms;
+}
+
+.rooms-page .rooms-tab:hover {
+  color: var(--ink);
+}
+
+.rooms-page .rooms-tab[aria-selected="true"] {
+  border-color: var(--border);
+  background: var(--bg-field);
+  box-shadow: 0 1px 3px rgb(36 43 36 / 8%);
+  color: var(--ink);
+}
+
+/* ---------- Forms, buttons, created state ---------- */
+
+.rooms-page .rooms-form,
+.rooms-page .rooms-created {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rooms-page .rooms-created {
+  gap: 14px;
+}
+
+.rooms-page .rooms-created .rooms-button--primary,
+.rooms-page .rooms-created .rooms-button--wide {
+  margin-top: 10px;
+}
+
+.rooms-page .rooms-created-status {
+  margin: 0;
+  color: var(--success);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.rooms-page .rooms-created-name {
+  margin: 0;
+  font-family: "Manrope", sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 32px;
+  overflow-wrap: anywhere;
+}
+
+.rooms-page .rooms-body-text {
+  margin: 0;
+  color: var(--body);
+  font-size: 15px;
+  line-height: 24px;
+}
+
+.rooms-page .code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 10px 10px 20px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-segment);
+}
+
+.rooms-page .code-box-value {
+  font-family: "Manrope", sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.rooms-page .rooms-button {
+  display: inline-flex;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 140ms, border-color 140ms;
+}
+
+.rooms-page .rooms-button--primary {
+  width: 100%;
+  background: var(--green);
+  color: #fff;
+}
+
+.rooms-page .rooms-button--primary:hover {
+  background: var(--green-hover);
+}
+
+.rooms-page .rooms-button--secondary {
+  border-color: var(--border-strong);
+  background: var(--bg-field);
+  color: var(--ink);
+}
+
+.rooms-page .rooms-button--secondary:hover {
+  border-color: var(--green);
+}
+
+.rooms-page .rooms-button--wide {
+  width: 100%;
+}
+
+.rooms-page .rooms-link-button {
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.rooms-page .rooms-link-button:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.rooms-page .rooms-link-button--inline {
+  padding: 0;
+  font-size: 13px;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  .rooms-page {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rooms-page .rooms-photo {
+    position: relative;
+    height: auto;
+    min-height: 300px;
+    padding: 20px 20px 24px;
+  }
+
+  .rooms-page .rooms-eyebrow {
+    display: none;
+  }
+
+  .rooms-page .rooms-intro h1 {
+    font-size: 32px;
+    line-height: 36px;
+  }
+
+  .rooms-page .rooms-lede {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 23px;
+  }
+
+  /* The back link sits over the photo on small screens. */
+  .rooms-page .rooms-header {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    height: 68px;
+    padding: 0 20px;
+  }
+
+  .rooms-page .rooms-link {
+    color: var(--on-dark);
+  }
+
+  .rooms-page .rooms-body {
+    align-items: flex-start;
+    padding: 24px 20px 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .rooms-page .rooms-card {
+    padding: 20px;
+  }
+
+  .rooms-page .code-box-value {
+    font-size: 26px;
+  }
+}

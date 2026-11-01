@@ -1,0 +1,32 @@
+/* Selectors are doubled (.pxs-logo.pxs-logo--x) so they beat index.css, which loads later. */
+.pxs-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pxs-logo .pxs-logo-mark {
+  width: 36px;
+  height: 36px;
+  flex: none;
+}
+
+.pxs-logo .pxs-logo-word {
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.pxs-logo .pxs-logo-word span {
+  font-weight: 500;
+}
+
+.pxs-logo.pxs-logo--light .pxs-logo-word {
+  color: #24332e;
+}
+
+.pxs-logo.pxs-logo--dark .pxs-logo-word {
+  color: #f4efe2;
+}
