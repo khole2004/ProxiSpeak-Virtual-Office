@@ -36,7 +36,7 @@ const features = [
   },
 ];
 
-export default function Home({ onLogin, onGetStarted }) {
+export default function Home({ onLogin, onGetStarted, onOpenWorkspace }) {
   const [activeAvatar, setActiveAvatar] = useState(0);
   const [demoMicOn, setDemoMicOn] = useState(false);
 
@@ -75,6 +75,11 @@ export default function Home({ onLogin, onGetStarted }) {
         </nav>
 
         <div className="home-nav-actions">
+          {onOpenWorkspace && (
+            <button className="nav-login" onClick={onOpenWorkspace} style={{ background: "#22c55e", color: "#ffffff", fontWeight: "600", marginRight: "8px" }}>
+              🏢 Enter Virtual Office
+            </button>
+          )}
           <button className="nav-login" onClick={onLogin}>
             Log in
           </button>
@@ -105,7 +110,7 @@ export default function Home({ onLogin, onGetStarted }) {
           </p>
 
           <div className="hero-actions">
-            <button className="primary-button hero-primary" onClick={onGetStarted}>
+            <button className="primary-button hero-primary" onClick={onOpenWorkspace || onGetStarted}>
               Enter your workspace <span aria-hidden="true">→</span>
             </button>
 

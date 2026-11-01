@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Login from "./Login";
 import CreateAccount from "./CreateAccount";
@@ -9,8 +8,8 @@ import { loginUser, registerUser } from "./services/auth";
 
 export default function App() {
   const [session, setSession] = useState(null);
-  const [page, setPage] = useState("home");
-  const [joinedMeeting, setJoinedMeeting] = useState(false);
+  // Default directly to the Virtual Office Workspace so it's immediately visible
+  const [page, setPage] = useState("workspace");
 
   async function handleLogin(credentials) {
     try {
@@ -21,7 +20,7 @@ export default function App() {
       });
 
       setSession({ ...result.user, token: result.token });
-      setJoinedMeeting(false);
+      setPage("workspace");
     } catch (error) {
       alert(error.message || "Unable to log in.");
     }
@@ -36,35 +35,25 @@ export default function App() {
       });
 
       setSession({ ...result.user, token: result.token });
-      setJoinedMeeting(false);
+      setPage("workspace");
     } catch (error) {
       alert(error.message || "Unable to create your account.");
     }
   }
 
-  // Show the Home page first
-  if (!session && page === "home") {
+  function handleLogout() {
+    setSession(null);
+  }
+
+  // Show the Home / Marketing overview
+  if (page === "home") {
     return (
       <Home
         onLogin={() => setPage("login")}
         onGetStarted={() => setPage("register")}
+        onOpenWorkspace={() => setPage("workspace")}
       />
     );
-  }
-
-  // Show the meeting lobby after successful authentication
-  if (session && !joinedMeeting) {
-    return (
-      <MeetingLobby
-        displayName={session.displayName}
-        onJoin={() => setJoinedMeeting(true)}
-      />
-    );
-  }
-
-  // Show the workspace after joining the meeting
-  if (session && joinedMeeting) {
-    return <Workspace initialName={session.displayName} />;
   }
 
   // Show the registration page
@@ -73,15 +62,40 @@ export default function App() {
       <CreateAccount
         onRegister={handleRegister}
         onBackToLogin={() => setPage("login")}
+        onCancel={() => setPage("workspace")}
       />
     );
   }
 
   // Show the login page
+  if (page === "login") {
+    return (
+      <Login
+        onLogin={handleLogin}
+        onCreateAccount={() => setPage("register")}
+        onCancel={() => setPage("workspace")}
+      />
+    );
+  }
+
+  // Show the meeting lobby if desired
+  if (page === "lobby") {
+    return (
+      <MeetingLobby
+        displayName={session?.displayName || "Teammate"}
+        onJoin={() => setPage("workspace")}
+      />
+    );
+  }
+
+  // DEFAULT & PRIMARY VIEW: The 2D Virtual Office Workspace with Avatars, WebRTC and Proximity Audio!
   return (
-    <Login
-      onLogin={handleLogin}
-      onCreateAccount={() => setPage("register")}
+    <Workspace
+      initialName={session ? session.displayName : ""}
+      session={session}
+      onGoToLogin={() => setPage("login")}
+      onGoToHome={() => setPage("home")}
+      onLogout={handleLogout}
     />
   );
 }

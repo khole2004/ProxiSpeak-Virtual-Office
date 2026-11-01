@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./style.css";
 
 import { audioSocket } from "./services/audio/audioSocket";
@@ -18,7 +18,13 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-export default function Workspace({ initialName = "" }) {
+export default function Workspace({
+  initialName = "",
+  session = null,
+  onGoToLogin,
+  onGoToHome,
+  onLogout,
+}) {
   const [name, setName] = useState(initialName);
   const [joined, setJoined] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -379,10 +385,71 @@ export default function Workspace({ initialName = "" }) {
           ProxiSpeak
         </div>
 
-        <span className="status">
-          <span className="status-dot" />
-          {joined ? "Connected workspace" : "Virtual office"}
-        </span>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          {session ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "#e5e7eb" }}>
+              <span>👤 <strong>{session.displayName}</strong></span>
+              <button
+                type="button"
+                onClick={onLogout}
+                style={{
+                  background: "#374151",
+                  color: "#f3f4f6",
+                  border: "none",
+                  padding: "5px 10px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                }}
+              >
+                Log Out
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: "8px" }}>
+              {onGoToLogin && (
+                <button
+                  type="button"
+                  onClick={onGoToLogin}
+                  style={{
+                    background: "#2563eb",
+                    color: "#ffffff",
+                    border: "none",
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    fontSize: "13px",
+                  }}
+                >
+                  🔐 Login (DB)
+                </button>
+              )}
+              {onGoToHome && (
+                <button
+                  type="button"
+                  onClick={onGoToHome}
+                  style={{
+                    background: "#374151",
+                    color: "#f3f4f6",
+                    border: "none",
+                    padding: "6px 12px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "13px",
+                  }}
+                >
+                  🏠 Overview
+                </button>
+              )}
+            </div>
+          )}
+
+          <span className="status">
+            <span className="status-dot" />
+            {joined ? "Connected workspace" : "Virtual office"}
+          </span>
+        </div>
       </nav>
 
       <section className="hero">
