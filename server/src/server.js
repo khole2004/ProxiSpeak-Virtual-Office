@@ -1,3 +1,10 @@
+const dns = require("dns");
+try {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+} catch (e) {
+  // Use system DNS as fallback
+}
+
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -228,7 +235,7 @@ async function startServer() {
       await mongoose.connect(process.env.MONGODB_URI, {
         serverSelectionTimeoutMS: 2500,
       });
-      console.log("MongoDB connected successfully.");
+      console.log("MongoDB Atlas connected successfully (Online Database Active).");
     } catch (error) {
       console.log("MongoDB offline. Running in Local In-Memory Mode (All Login and Register requests work seamlessly).");
     }
