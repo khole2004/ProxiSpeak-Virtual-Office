@@ -32,9 +32,20 @@ app.use("/api/auth", authRoutes);
 
 // Health check
 app.get("/", (req, res) => {
+  const isMongoConnected = mongoose.connection.readyState === 1;
   res.json({
     message: "Welcome to the ProxiSpeak API!",
     status: "running",
+    database: isMongoConnected ? "Online (MongoDB Atlas Connected)" : "Local In-Memory Mode",
+  });
+});
+
+app.get("/api/health", (req, res) => {
+  const isMongoConnected = mongoose.connection.readyState === 1;
+  res.json({
+    status: "OK",
+    database: isMongoConnected ? "Connected" : "Offline",
+    timestamp: new Date().toISOString(),
   });
 });
 
@@ -233,7 +244,7 @@ async function startServer() {
   if (process.env.MONGODB_URI) {
     try {
       await mongoose.connect(process.env.MONGODB_URI, {
-        serverSelectionTimeoutMS: 2500,
+        serverSelectionTimeoutMS: 8000,
       });
       console.log("MongoDB Atlas connected successfully (Online Database Active).");
     } catch (error) {
