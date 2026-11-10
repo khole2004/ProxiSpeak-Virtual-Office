@@ -1,0 +1,31 @@
+{
+  "name": "ProxiSpeak - 3D Geospatial Proximity Audio Virtual Office",
+  "short_name": "ProxiSpeak",
+  "description": "Real-time 3D spatial office and distance-attenuated WebRTC audio communication workspace for modern distributed teams.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "categories": [
+    "productivity",
+    "collaboration",
+    "communication",
+    "business"
+  ],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "48x48 72x72 96x96 128x128 256x256",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/studio.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
