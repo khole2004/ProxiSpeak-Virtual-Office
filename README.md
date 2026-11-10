@@ -1,5 +1,10 @@
 # ProxiSpeak – Geospatial Proximity Audio Virtual Office
 
+[![ProxiSpeak CI](https://github.com/khole2004/ProxiSpeak-Virtual-Office/actions/workflows/ci.yml/badge.svg)](https://github.com/khole2004/ProxiSpeak-Virtual-Office/actions/workflows/ci.yml)
+[![Tests Passing](https://img.shields.io/badge/tests-9%20passed-success)](https://github.com/khole2004/ProxiSpeak-Virtual-Office/actions)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A real-time 2D virtual office and proximity-based audio communication ecosystem for remote teams. Instead of traditional grid-based video calls, team members interact through personalized avatars on an interactive canvas, where spatial audio naturally fades with distance—simulating organic, in-person workplace interactions.
 
 ---
