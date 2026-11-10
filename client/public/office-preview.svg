@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!--
+    ProxiSpeak OpenGraph & Social Card Banner
+    - Dimensions: 1200 x 630 (Standard 1.91:1 ratio for LinkedIn, Twitter, Slack, Discord)
+    - Graphic Elements: Spatial Audio nodes with sound attenuation wave circles,
+      modern dark gradient canvas, and crisp typography.
+  -->
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="50%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+
+    <!-- Brand Cyan-Indigo Gradient -->
+    <linearGradient id="brand-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+
+    <!-- Node Gradient 1 -->
+    <linearGradient id="node1-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60a5fa" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+
+    <!-- Node Gradient 2 -->
+    <linearGradient id="node2-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+
+    <!-- Radial Audio Glow -->
+    <radialGradient id="audio-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.35" />
+      <stop offset="70%" stop-color="#38bdf8" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1200" height="630" fill="url(#bg-grad)" />
+
+  <!-- Ambient Audio Proximity Fields -->
+  <circle cx="920" cy="315" r="260" fill="url(#audio-glow)" />
+  <circle cx="920" cy="315" r="200" fill="none" stroke="#6366f1" stroke-width="2" stroke-opacity="0.3" stroke-dasharray="6 6" />
+  <circle cx="920" cy="315" r="130" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-opacity="0.5" />
+  <circle cx="920" cy="315" r="70" fill="none" stroke="#818cf8" stroke-width="3" stroke-opacity="0.8" />
+
+  <!-- Avatar Node A (Active Speaker) -->
+  <circle cx="920" cy="315" r="32" fill="url(#node1-grad)" stroke="#ffffff" stroke-width="3" />
+  <!-- Wave pulse badge -->
+  <circle cx="920" cy="315" r="42" fill="none" stroke="#38bdf8" stroke-width="3" opacity="0.75" />
+
+  <!-- Avatar Node B (Listener in proximity) -->
+  <circle cx="1060" cy="390" r="26" fill="url(#node2-grad)" stroke="#ffffff" stroke-width="2.5" />
+  <!-- Proximity Connection line with attenuation indicator -->
+  <line x1="920" y1="315" x2="1060" y2="390" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="4 4" opacity="0.6" />
+
+  <!-- Left Content Column -->
+  <!-- Brand Badge Pill -->
+  <rect x="80" y="80" width="168" height="38" rx="19" fill="#1e293b" stroke="#334155" stroke-width="1.5" />
+  <circle cx="102" cy="99" r="6" fill="#10b981" />
+  <text x="120" y="104" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#cbd5e1" letter-spacing="1">PROXISPEAK</text>
+
+  <!-- Title Headline -->
+  <text x="80" y="210" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="64" font-weight="800" fill="url(#brand-grad)" letter-spacing="-1.5">
+    ProxiSpeak
+  </text>
+  <text x="80" y="280" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="700" fill="#f8fafc" letter-spacing="-0.5">
+    Geospatial Proximity Audio Virtual Office
+  </text>
+
+  <!-- Tagline / Description -->
+  <text x="80" y="340" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="400" fill="#94a3b8">
+    Immersive 3D workspace where spatial voice naturally fades with distance.
+  </text>
+  <text x="80" y="372" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="400" fill="#94a3b8">
+    Powered by WebRTC peer mesh, Three.js rooms, and real-time Socket.IO.
+  </text>
+
+  <!-- Feature Highlights -->
+  <!-- Chip 1: WebRTC Audio -->
+  <rect x="80" y="440" width="190" height="42" rx="10" fill="#0f172a" stroke="#6366f1" stroke-width="1.5" />
+  <text x="100" y="466" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#a5b4fc">? WebRTC Mesh Audio</text>
+
+  <!-- Chip 2: Spatial GainNodes -->
+  <rect x="285" y="440" width="205" height="42" rx="10" fill="#0f172a" stroke="#06b6d4" stroke-width="1.5" />
+  <text x="305" y="466" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#67e8f9">? Spatial GainNode Falloff</text>
+
+  <!-- Chip 3: 3D Rooms -->
+  <rect x="505" y="440" width="180" height="42" rx="10" fill="#0f172a" stroke="#10b981" stroke-width="1.5" />
+  <text x="525" y="466" font-family="system-ui, sans-serif" font-size="15" font-weight="600" fill="#6ee7b7">? 3D Interactive Rooms</text>
+
+  <!-- Bottom Footer Bar -->
+  <line x1="80" y1="540" x2="1120" y2="540" stroke="#334155" stroke-width="1" />
+  <text x="80" y="580" font-family="system-ui, sans-serif" font-size="15" font-weight="500" fill="#64748b">
+    Open Source Virtual Office Ecosystem ? github.com/khole2004/ProxiSpeak-Virtual-Office
+  </text>
+</svg>
