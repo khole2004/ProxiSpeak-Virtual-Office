@@ -351,9 +351,21 @@ export default function Workspace({
 
     if (!rect.width || !rect.height) return;
 
+    // Safety margin (avatar radius) so avatars stay cleanly within the office container on all screen sizes
+    const PADDING_X = 24;
+    const PADDING_Y = 24;
+
     const position = {
-      x: clamp(((event.clientX - rect.left) / rect.width) * 1000, 0, 1000),
-      y: clamp(((event.clientY - rect.top) / rect.height) * 600, 0, 600),
+      x: clamp(
+        ((event.clientX - rect.left) / rect.width) * 1000,
+        PADDING_X,
+        1000 - PADDING_X
+      ),
+      y: clamp(
+        ((event.clientY - rect.top) / rect.height) * 600,
+        PADDING_Y,
+        600 - PADDING_Y
+      ),
     };
 
     localPositionRef.current = position;
