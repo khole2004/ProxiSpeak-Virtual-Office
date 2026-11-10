@@ -92,3 +92,20 @@ test("Boundary Clamping: Avatar coordinates stay strictly within 2D canvas limit
   assert.deepEqual(clampedPositions[1], { x: 976, y: 576 });
   assert.deepEqual(clampedPositions[2], { x: 500, y: 300 });
 });
+
+test("Stereo Panning: Peers on the left pan negative, peers on the right pan positive", async () => {
+  const { calculateStereoPan } = await import(
+    "../client/src/services/audio/binauralPanner.js"
+  );
+  const me = { x: 500, y: 300 };
+  const peerRight = { x: 700, y: 300 };
+  const peerLeft = { x: 300, y: 300 };
+  const peerCenter = { x: 500, y: 600 };
+
+  assert.equal(calculateStereoPan(me, peerCenter), 0.0);
+  assert.equal(calculateStereoPan(me, peerRight, 400), 0.5);
+  assert.equal(calculateStereoPan(me, peerLeft, 400), -0.5);
+  // Clamping at maximum width
+  assert.equal(calculateStereoPan(me, { x: 1000, y: 300 }, 400), 1.0);
+  assert.equal(calculateStereoPan(me, { x: 0, y: 300 }, 400), -1.0);
+});
