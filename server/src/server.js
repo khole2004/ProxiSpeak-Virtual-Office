@@ -13,9 +13,13 @@ const { Server } = require("socket.io");
 require("dotenv").config();
 
 const authRoutes = require("../routes/auth");
+const { createRateLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
 const httpServer = http.createServer(app);
+
+// Apply Global Rate Limiting (120 requests/min per IP)
+app.use(createRateLimiter({ windowMs: 60 * 1000, max: 120 }));
 
 // Production CORS Configuration
 const allowedOrigins = process.env.CLIENT_URL
@@ -68,6 +72,21 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "OK",
     database: isMongoConnected ? "Connected" : "Offline",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Live Room and Virtual Office Metrics Endpoint
+app.get("/api/rooms/metrics", (req, res) => {
+  const activeSockets = io.engine?.clientsCount || 0;
+  const activeParticipants = participantPositions.size;
+
+  res.json({
+    status: "active",
+    activeSockets,
+    activeParticipants,
+    uptimeSeconds: Math.floor(process.uptime()),
+    memoryUsageMB: Math.round(process.memoryUsage().rss / (1024 * 1024)),
     timestamp: new Date().toISOString(),
   });
 });
