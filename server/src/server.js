@@ -17,13 +17,36 @@ const authRoutes = require("../routes/auth");
 const app = express();
 const httpServer = http.createServer(app);
 
+// Production CORS Configuration
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",").map((s) => s.trim())
+  : [
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "http://127.0.0.1:5173",
+    ];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.includes("*") ||
+      allowedOrigins.includes(origin) ||
+      origin.endsWith(".vercel.app") ||
+      origin.endsWith(".onrender.com") ||
+      origin.includes("localhost") ||
+      origin.includes("127.0.0.1")
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+};
+
 // Middleware
-app.use(
-  cors({
-    origin: true, credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  })
-);
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: "10kb" }));
 
@@ -51,10 +74,7 @@ app.get("/api/health", (req, res) => {
 
 // Socket.IO setup
 const io = new Server(httpServer, {
-  cors: {
-    origin: true, credentials: true,
-    methods: ["GET", "POST"],
-  },
+  cors: corsOptions,
 });
 
 // Store the latest avatar position for each connected participant.
@@ -237,7 +257,7 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
   httpServer.listen(PORT, () => {
     console.log(
-      "ProxiSpeak server running at http://localhost:5000"
+      `ProxiSpeak server running on port ${PORT}`
     );
   });
 
@@ -252,6 +272,29 @@ async function startServer() {
     }
   }
 }
+
+// Graceful shutdown handling for container and cloud deployments (Render, Railway)
+function gracefulShutdown(signal) {
+  console.log(`Received ${signal}. Gracefully shutting down ProxiSpeak server...`);
+  httpServer.close(async () => {
+    console.log("HTTP server closed.");
+    try {
+      await mongoose.connection.close();
+      console.log("MongoDB Atlas connection cleanly closed.");
+    } catch (err) {
+      console.error("Error closing MongoDB connection:", err);
+    }
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    console.error("Forceful shutdown after timeout.");
+    process.exit(1);
+  }, 10000);
+}
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 startServer();
 
