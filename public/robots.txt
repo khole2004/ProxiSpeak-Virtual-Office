@@ -1,0 +1,24 @@
+# ==============================================================================
+# ProxiSpeak Search Engine Crawler & Bot Directives
+# ==============================================================================
+# Purpose:
+# 1. Allow search engines to index marketing, landing, and static onboarding pages.
+# 2. Restrict indexing of private WebRTC meeting rooms, active signaling routes,
+#    and dynamic user sessions to safeguard team workplace privacy.
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Allow: /favicon.svg
+Allow: /manifest.json
+Allow: /studio.png
+Allow: /office-preview.svg
+
+# Disallow private room sessions & real-time signaling endpoints
+Disallow: /room/
+Disallow: /rooms/
+Disallow: /api/
+Disallow: /socket.io/
+
+# Sitemap location
+Sitemap: https://proxispeak.onrender.com/sitemap.xml
