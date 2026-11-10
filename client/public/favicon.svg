@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!--
+    ProxiSpeak Vector Favicon & App Icon
+    - Design: Concentric spatial audio soundwaves surrounding an interactive avatar core
+    - Palette: Indigo (#6366f1) & Cyan (#06b6d4) high-contrast gradient for dark/light themes
+    - Usage: Linked in index.html as rel="icon" type="image/svg+xml"
+  -->
+  <defs>
+    <!-- Dynamic gradient for spatial audio rings -->
+    <linearGradient id="proxi-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#818cf8" />
+      <stop offset="50%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+
+    <!-- Subtle glow filter for proximity presence -->
+    <filter id="proxi-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.5" result="glow" />
+      <feComposite in="SourceGraphic" in2="glow" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded pill -->
+  <rect width="64" height="64" rx="16" fill="#0f172a" />
+
+  <!-- Outer Proximity Audio Wave (Faded attenuation boundary) -->
+  <circle cx="32" cy="32" r="26" fill="none" stroke="url(#proxi-grad)" stroke-width="2" stroke-opacity="0.35" stroke-dasharray="3 3" />
+
+  <!-- Mid Proximity Audio Wave (Active hearing range) -->
+  <circle cx="32" cy="32" r="20" fill="none" stroke="url(#proxi-grad)" stroke-width="2.5" stroke-opacity="0.75" />
+
+  <!-- Inner Voice Activity Wave (Speaking pulse ring) -->
+  <circle cx="32" cy="32" r="13" fill="none" stroke="#38bdf8" stroke-width="2" filter="url(#proxi-glow)" />
+
+  <!-- Avatar Spatial Core (User Node) -->
+  <circle cx="32" cy="32" r="7" fill="url(#proxi-grad)" />
+
+  <!-- Microphone / Soundwave Center Indicator -->
+  <circle cx="32" cy="32" r="3" fill="#ffffff" />
+</svg>
