@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ProxiSpeak Search Engine Sitemap
+  Protocol: https://www.sitemaps.org/schemas/sitemap/0.9
+  Description: Defines canonical public entrypoints for web indexation
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Primary Landing & 3D Virtual Office Entrance -->
+  <url>
+    <loc>https://proxispeak.onrender.com/</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Team Member Sign In & Authentication Portal -->
+  <url>
+    <loc>https://proxispeak.onrender.com/login</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Interactive Virtual Workspace Canvas -->
+  <url>
+    <loc>https://proxispeak.onrender.com/workspace</loc>
+    <lastmod>2026-11-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+</urlset>
