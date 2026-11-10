@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "fetch-photo": "node scripts/fetch-photo.mjs",
     "client": "npm --prefix client run dev",
-    "server": "node server/src/server.js"
+    "server": "node server/src/server.js",
+    "test": "node --test tests/proximityAudio.test.js"
   },
   "dependencies": {
     "react": "^18.3.1",
